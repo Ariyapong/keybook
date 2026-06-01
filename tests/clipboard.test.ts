@@ -4,7 +4,9 @@ vi.mock("node:child_process", () => ({ spawnSync: vi.fn() }));
 import { spawnSync } from "node:child_process";
 import { copyToClipboard } from "../src/clipboard";
 
-beforeEach(() => vi.mocked(spawnSync).mockReset());
+beforeEach(() => {
+  vi.mocked(spawnSync).mockReset();
+});
 
 it("returns true and pipes text to pbcopy on success", () => {
   vi.mocked(spawnSync).mockReturnValue({ status: 0 } as never);
