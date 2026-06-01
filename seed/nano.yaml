@@ -1,0 +1,51 @@
+app: Nano
+entries:
+  - action: Save the file (write out)
+    keys: "⌃O"
+    tags: [save, write]
+  - action: Exit nano
+    keys: "⌃X"
+    tags: [quit, exit]
+  - action: Show help
+    keys: "⌃G"
+    tags: [help]
+  - action: Cut the current line
+    keys: "⌃K"
+    tags: [cut, delete]
+  - action: Paste (uncut) the cut text
+    keys: "⌃U"
+    tags: [paste, uncut]
+  - action: Set a mark, then move to select
+    keys: "⌃6"
+    notes: ⌃6 (or ⌃^) starts a selection; move the cursor to extend it, then ⌃K cuts it.
+    tags: [select, mark]
+  - action: Search
+    keys: "⌃W"
+    notes: After ⌃W, press ⏎ again to repeat the last search.
+    tags: [find, search]
+  - action: Search and replace
+    keys: "⌃\\"
+    tags: [replace]
+  - action: Go to line / column
+    keys: "⌃_"
+    tags: [goto, line]
+  - action: Go to top / bottom of the file
+    keys: "⌥\\, ⌥/"
+    tags: [top, bottom]
+  - action: Page up / down
+    keys: "⌃Y, ⌃V"
+    tags: [scroll, page]
+  - action: Undo / redo
+    keys: "⌥U, ⌥E"
+    tags: [undo, redo]
+  - action: Show the current cursor position
+    keys: "⌃C"
+    tags: [position, line number]
+  - action: Notation note (Control and Meta keys)
+    steps:
+      - nano writes ⌃ as "^" (Control) and ⌥ as "M-" (Meta)
+      - "Example: ^O means Control-O; M-U means Meta-U"
+    notes: >-
+      On macOS, Meta = Option. If ⌥ shortcuts don't work in Terminal, enable
+      Terminal → Settings → Profiles → Keyboard → "Use Option as Meta key".
+    tags: [notation, meta, help]

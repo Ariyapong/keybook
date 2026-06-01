@@ -29,6 +29,7 @@ describe("seed data", () => {
       "Claude",
       "Text editing",
       "Vim",
+      "Nano",
     ]) {
       expect(apps.has(a)).toBe(true);
     }
