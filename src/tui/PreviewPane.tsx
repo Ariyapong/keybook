@@ -20,10 +20,10 @@ function KeyCaps({ value }: { value: string }) {
   );
 }
 
-export function PreviewPane({ entry }: { entry?: Entry }) {
+export function PreviewPane({ entry, width = "50%" }: { entry?: Entry; width?: number | string }) {
   if (!entry) return null;
   return (
-    <Box flexDirection="column" width="50%" paddingLeft={2}>
+    <Box flexDirection="column" width={width} paddingLeft={2}>
       <Text color="cyan">{entry.app}</Text>
       <Text bold>{entry.action}</Text>
       <Box marginTop={1} flexDirection="column">

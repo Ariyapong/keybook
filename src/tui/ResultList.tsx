@@ -7,15 +7,17 @@ export function ResultList({
   selected,
   query,
   height = 12,
+  width = "50%",
 }: {
   results: Entry[];
   selected: number;
   query: string;
   height?: number;
+  width?: number | string;
 }) {
   if (results.length === 0) {
     return (
-      <Box width="50%" justifyContent="center">
+      <Box width={width} justifyContent="center">
         <Text color="gray">No matches for "{query}"</Text>
       </Box>
     );
@@ -23,7 +25,7 @@ export function ResultList({
   const start = Math.max(0, Math.min(selected - Math.floor(height / 2), results.length - height));
   const visible = results.slice(Math.max(0, start), Math.max(0, start) + height);
   return (
-    <Box flexDirection="column" width="50%">
+    <Box flexDirection="column" width={width}>
       {visible.map((e, i) => (
         <ResultRow
           key={`${e.app}:${e.action}`}

@@ -12,3 +12,16 @@ export function visibleListHeight(terminalRows?: number): number {
   const rows = terminalRows && terminalRows > 0 ? terminalRows : 24;
   return Math.max(1, rows - RESERVED_ROWS);
 }
+
+/**
+ * Integer widths for the two side-by-side panes. They MUST sum to the exact
+ * terminal width: two `width="50%"` siblings each round up on an odd-width
+ * terminal (58 + 58 = 116 at 115 cols), overflowing by a column. The terminal
+ * then soft-wraps the full-width rows, Ink miscounts the frame height, and its
+ * redraw leaves stale lines stacked on every keystroke.
+ */
+export function columnWidths(terminalCols?: number): { left: number; right: number } {
+  const cols = terminalCols && terminalCols > 0 ? terminalCols : 80;
+  const left = Math.floor(cols / 2);
+  return { left, right: cols - left };
+}

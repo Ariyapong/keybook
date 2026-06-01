@@ -7,7 +7,7 @@ import { Footer } from "./Footer";
 import { PreviewPane } from "./PreviewPane";
 import { ResultList } from "./ResultList";
 import { SearchInput } from "./SearchInput";
-import { visibleListHeight } from "./layout";
+import { columnWidths, visibleListHeight } from "./layout";
 
 export interface AppProps {
   entries: Entry[];
@@ -26,6 +26,7 @@ export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppPr
   const sel = results.length ? Math.min(selected, results.length - 1) : 0;
   const current = results[sel];
   const listHeight = visibleListHeight(stdout?.rows);
+  const { left, right } = columnWidths(stdout?.columns);
 
   useInput((input, key) => {
     if (!key.return && flash) setFlash("");
@@ -64,8 +65,14 @@ export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppPr
     <Box flexDirection="column">
       <SearchInput query={query} />
       <Box>
-        <ResultList results={results} selected={sel} query={query} height={listHeight} />
-        <PreviewPane entry={current} />
+        <ResultList
+          results={results}
+          selected={sel}
+          query={query}
+          height={listHeight}
+          width={left}
+        />
+        <PreviewPane entry={current} width={right} />
       </Box>
       <Footer flash={flash} errorCount={errorCount} resultCount={results.length} />
     </Box>
