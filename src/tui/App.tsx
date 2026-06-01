@@ -61,7 +61,7 @@ export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppPr
     <Box flexDirection="column">
       <SearchInput query={query} />
       <Box>
-        <ResultList results={results} selected={sel} />
+        <ResultList results={results} selected={sel} query={query} />
         <PreviewPane entry={current} />
       </Box>
       <Footer flash={flash} errorCount={errorCount} resultCount={results.length} />

@@ -25,5 +25,3 @@ export const fileShape = z
     entries: z.array(z.unknown()).min(1),
   })
   .strict();
-
-export type EntryInput = z.infer<typeof entrySchema>;

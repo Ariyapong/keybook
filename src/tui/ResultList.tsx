@@ -5,16 +5,18 @@ import { ResultRow } from "./ResultRow";
 export function ResultList({
   results,
   selected,
+  query,
   height = 12,
 }: {
   results: Entry[];
   selected: number;
+  query: string;
   height?: number;
 }) {
   if (results.length === 0) {
     return (
-      <Box width="50%">
-        <Text color="gray">No matches</Text>
+      <Box width="50%" justifyContent="center">
+        <Text color="gray">No matches for "{query}"</Text>
       </Box>
     );
   }
