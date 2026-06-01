@@ -39,3 +39,23 @@ entries:
   - action: Reload the tmux config
     command: tmux source-file ~/.tmux.conf
     tags: [reload, config]
+  - action: Break the current pane into its own window
+    keys: "⌃B, !"
+    tags: [pane, window, break]
+  - action: Swap the current pane left / right
+    keys: "⌃B, {"
+    notes: "{ swaps with the previous pane; } swaps with the next."
+    tags: [pane, swap, move]
+  - action: Cycle through the preset pane layouts
+    keys: "⌃B, ␣"
+    tags: [layout, arrange]
+  - action: Show pane numbers (then press one to jump)
+    keys: "⌃B, Q"
+    tags: [pane, jump]
+  - action: Kill the current window
+    keys: "⌃B, &"
+    notes: Asks for confirmation.
+    tags: [window, close, kill]
+  - action: Paste the most recent copy-mode buffer
+    keys: "⌃B, ]"
+    tags: [paste, copy]
