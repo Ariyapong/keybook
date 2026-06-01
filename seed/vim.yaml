@@ -39,6 +39,9 @@ entries:
   - action: Paste after / before the cursor
     keys: "p, P"
     tags: [paste]
+  - action: Delete the character under the cursor
+    keys: "x"
+    tags: [delete, char]
   - action: Undo / redo
     keys: "u, ⌃R"
     tags: [undo, redo]

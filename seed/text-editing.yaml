@@ -30,8 +30,10 @@ entries:
     tags: [select, document]
   - action: Select all
     keys: "⌘A"
+    tags: [select, all]
   - action: Undo / redo
     keys: "⌘Z, ⇧⌘Z"
+    tags: [undo, redo]
   - action: Jump to start / end of line (emacs-style)
     keys: "⌃A, ⌃E"
     notes: Works in most macOS native (Cocoa) text fields, not every app.
