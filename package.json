@@ -2,6 +2,21 @@
   "name": "keybook",
   "version": "0.1.0",
   "description": "A macOS TUI for searching keyboard shortcuts and recipes of your favorite apps",
+  "keywords": [
+    "cli",
+    "tui",
+    "ink",
+    "keyboard-shortcuts",
+    "shortcuts",
+    "cheatsheet",
+    "macos",
+    "terminal",
+    "productivity"
+  ],
+  "homepage": "https://github.com/Ariyapong/keybook#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/Ariyapong/keybook.git" },
+  "bugs": { "url": "https://github.com/Ariyapong/keybook/issues" },
+  "author": "Ariyapong Wimolnoch",
   "type": "module",
   "bin": { "keybook": "dist/cli.js", "kb": "dist/cli.js" },
   "files": ["dist", "seed", "README.md", "LICENSE"],
@@ -13,7 +28,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "commander": "^12.1.0",
