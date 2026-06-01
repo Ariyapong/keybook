@@ -8,17 +8,20 @@ entries:
     keys: "⌘W"
   - action: Commit the staged changes
     keys: "⌘⏎"
-    notes: From the commit message box.
+    notes: From the commit message box. The Repository → Commit menu item is ⇧⌘C.
   - action: Fetch
-    keys: "⌘⇧F"
-    notes: Verify in Fork → Repository menu.
+    keys: "⇧⌘F"
+    notes: Add ⌥ for Quick Fetch (skips the dialog) — ⌥⇧⌘F.
+    tags: [fetch]
   - action: Pull
-    keys: "⌘⇧P"
-    notes: Verify in Fork → Repository menu.
+    keys: "⇧⌘L"
+    notes: Add ⌥ for Quick Pull — ⌥⇧⌘L.
+    tags: [pull]
   - action: Push
-    keys: "⌘⇧U"
-    notes: Verify in Fork → Repository menu.
+    keys: "⇧⌘P"
+    notes: Add ⌥ for Quick Push — ⌥⇧⌘P.
+    tags: [push]
   - action: Open Quick Launch (command palette)
     keys: "⌘P"
-    notes: Fork's fuzzy action launcher. Verify the binding.
+    notes: Fork's fuzzy action launcher.
     tags: [palette, actions]

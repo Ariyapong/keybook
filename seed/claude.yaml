@@ -2,16 +2,20 @@ app: Claude
 entries:
   - action: Start a new chat
     keys: "⌘N"
-    notes: Verify in the Claude app's menus.
+    notes: Labeled "New Conversation" in the File menu.
   - action: Send the message
     keys: "⏎"
   - action: Insert a newline in the message
     keys: "⇧⏎"
     tags: [new line]
   - action: Search your chats
-    keys: "⌘K"
-    notes: Verify the binding in your Claude app version.
-    tags: [search]
+    steps:
+      - Open Claude's conversation list / sidebar
+      - Use its search field to filter your past chats
+    notes: >-
+      No verified keyboard shortcut in the Claude desktop app (v1.96) — Edit →
+      Find (⌘F) is in-page find, not chat search. Update if a binding is added.
+    tags: [search, find chats]
   - action: Summon Claude from anywhere (global hotkey)
     steps:
       - Open Claude → Settings
