@@ -1,0 +1,63 @@
+app: Vim
+entries:
+  - action: Enter Insert mode (before / after the cursor)
+    keys: "i, a"
+    tags: [insert, edit]
+  - action: Return to Normal mode
+    keys: "⎋"
+    tags: [normal, escape]
+  - action: Enter Visual / Visual-Block mode
+    keys: "v, ⌃V"
+    tags: [select, block]
+  - action: Save the file
+    keys: ":w⏎"
+    tags: [write, save]
+  - action: Save and quit
+    keys: ":wq⏎"
+    notes: ZZ does the same from Normal mode.
+    tags: [save, quit, exit]
+  - action: Quit without saving
+    keys: ":q!⏎"
+    tags: [quit, discard, exit]
+  - action: Go to start / end of line
+    keys: "0, $"
+    notes: "^ jumps to the first non-blank character."
+    tags: [line, motion]
+  - action: Go to top / bottom of file
+    keys: "gg, G"
+    notes: '":42⏎" jumps to line 42.'
+    tags: [motion, goto]
+  - action: Move word forward / back
+    keys: "w, b"
+    tags: [word, motion]
+  - action: Jump to the matching bracket
+    keys: "%"
+    tags: [bracket, paren, match]
+  - action: Delete / yank (copy) the current line
+    keys: "dd, yy"
+    tags: [delete, copy, cut]
+  - action: Paste after / before the cursor
+    keys: "p, P"
+    tags: [paste]
+  - action: Undo / redo
+    keys: "u, ⌃R"
+    tags: [undo, redo]
+  - action: Repeat the last change
+    keys: "."
+    tags: [repeat, dot]
+  - action: Search, then next / previous match
+    keys: "/text⏎, n, N"
+    tags: [search, find]
+  - action: Replace every match in the file
+    keys: ":%s/old/new/g⏎"
+    notes: Add c at the end (…/gc) to confirm each replacement.
+    tags: [replace, substitute, tip]
+  - action: Change inside word / quotes / parens
+    keys: 'ciw, ci", ci('
+    notes: >-
+      Text objects — "change inner". Swap c for d to delete instead (diw, di").
+      Works with [], {}, <> too.
+    tags: [text object, tip, change]
+  - action: Indent / outdent the line or selection
+    keys: ">>, <<"
+    tags: [indent]

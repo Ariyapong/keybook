@@ -28,6 +28,7 @@ describe("seed data", () => {
       "macOS",
       "Claude",
       "Text editing",
+      "Vim",
     ]) {
       expect(apps.has(a)).toBe(true);
     }
