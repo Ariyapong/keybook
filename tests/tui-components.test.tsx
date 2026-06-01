@@ -1,5 +1,5 @@
 import { render } from "ink-testing-library";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { Entry } from "../src/data/types";
 import { Footer } from "../src/tui/Footer";
 import { PreviewPane } from "../src/tui/PreviewPane";
@@ -36,6 +36,16 @@ describe("PreviewPane", () => {
   it("renders nothing for an undefined entry", () => {
     const { lastFrame } = render(<PreviewPane entry={undefined} />);
     expect(lastFrame()).toBe("");
+  });
+  it("renders a combo with a repeated token without a duplicate-key warning", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const e: Entry = { app: "Terminal", action: "Edit command", keys: "⌃X⌃E" };
+    const { lastFrame } = render(<PreviewPane entry={e} />);
+    const dupKeyWarning = spy.mock.calls.find((c) => String(c[0]).includes("same key"));
+    spy.mockRestore();
+    expect(dupKeyWarning).toBeUndefined();
+    expect(lastFrame()).toContain("X");
+    expect(lastFrame()).toContain("E");
   });
 });
 
