@@ -1,0 +1,24 @@
+app: Fork
+entries:
+  - action: Open a repository
+    keys: "⌘O"
+  - action: Open a new tab
+    keys: "⌘T"
+  - action: Close the current tab
+    keys: "⌘W"
+  - action: Commit the staged changes
+    keys: "⌘⏎"
+    notes: From the commit message box.
+  - action: Fetch
+    keys: "⌘⇧F"
+    notes: Verify in Fork → Repository menu.
+  - action: Pull
+    keys: "⌘⇧P"
+    notes: Verify in Fork → Repository menu.
+  - action: Push
+    keys: "⌘⇧U"
+    notes: Verify in Fork → Repository menu.
+  - action: Open Quick Launch (command palette)
+    keys: "⌘P"
+    notes: Fork's fuzzy action launcher. Verify the binding.
+    tags: [palette, actions]

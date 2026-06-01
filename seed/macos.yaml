@@ -1,0 +1,50 @@
+app: macOS
+entries:
+  - action: Open Spotlight search
+    keys: "⌘␣"
+    tags: [search, launch]
+  - action: Switch between open apps
+    keys: "⌘⇥"
+    tags: [app switcher]
+  - action: Switch between windows of the current app
+    keys: "⌘`"
+  - action: Screenshot a region to a file
+    keys: "⌘⇧4"
+    tags: [screenshot, capture]
+  - action: Screenshot the whole screen to a file
+    keys: "⌘⇧3"
+    tags: [screenshot]
+  - action: Screenshot a region to the clipboard
+    keys: "⌃⌘⇧4"
+    tags: [screenshot, copy]
+  - action: Open the screenshot / recording toolbar
+    keys: "⌘⇧5"
+    tags: [screenshot, record]
+  - action: Quit the current app
+    keys: "⌘Q"
+  - action: Hide the current app
+    keys: "⌘H"
+  - action: Minimize the window
+    keys: "⌘M"
+  - action: Close the window
+    keys: "⌘W"
+  - action: Toggle full screen
+    keys: "⌃⌘F"
+  - action: Open Mission Control
+    keys: "⌃↑"
+  - action: Move one space left / right
+    keys: "⌃←, ⌃→"
+  - action: Lock the screen
+    keys: "⌃⌘Q"
+  - action: Open the Force Quit dialog
+    keys: "⌥⌘⎋"
+    tags: [force quit]
+  - action: Open the emoji & symbols picker
+    keys: "⌃⌘␣"
+    tags: [emoji]
+  - action: Record your screen
+    steps:
+      - Press ⌘⇧5
+      - Choose "Record Entire Screen" or "Record Selected Portion", then click Record
+      - To stop, click the ⏹ stop button in the menu bar
+    tags: [screen recording]

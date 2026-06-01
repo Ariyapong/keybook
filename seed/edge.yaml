@@ -1,0 +1,39 @@
+app: Microsoft Edge
+entries:
+  - action: Open a new tab
+    keys: "⌘T"
+    tags: [new tab]
+  - action: Reopen the last closed tab
+    keys: "⌘⇧T"
+    tags: [restore tab]
+  - action: Open a new window
+    keys: "⌘N"
+  - action: Open a new InPrivate window
+    keys: "⌘⇧N"
+    tags: [incognito, private]
+  - action: Close the current tab
+    keys: "⌘W"
+  - action: Next / previous tab
+    keys: "⌃⇥, ⌃⇧⇥"
+  - action: Jump to tab 1–8
+    keys: "⌘1"
+    notes: ⌘1–⌘8 jump to that tab; ⌘9 jumps to the last tab.
+  - action: Focus the address bar
+    keys: "⌘L"
+    tags: [omnibox, url]
+  - action: Find on the page
+    keys: "⌘F"
+  - action: Reload / hard reload
+    keys: "⌘R, ⌘⇧R"
+  - action: Open Developer Tools
+    keys: "⌘⌥I"
+    tags: [devtools, inspect]
+  - action: Open History
+    keys: "⌘Y"
+  - action: Bookmark this page
+    keys: "⌘D"
+    tags: [favorite]
+  - action: Zoom in / out / reset
+    keys: "⌘+, ⌘-, ⌘0"
+  - action: Back / forward
+    keys: "⌘[, ⌘]"

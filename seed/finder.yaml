@@ -1,0 +1,52 @@
+app: Finder
+entries:
+  - action: Open a new tab
+    keys: "⌘T"
+    tags: [new tab]
+  - action: Open a new Finder window
+    keys: "⌘N"
+  - action: Create a new folder
+    keys: "⌘⇧N"
+    tags: [new folder]
+  - action: Go to folder by path
+    keys: "⌘⇧G"
+    tags: [go to, path]
+  - action: Go up one folder
+    keys: "⌘↑"
+  - action: Open selected item
+    keys: "⌘↓"
+  - action: Back / Forward
+    keys: "⌘[, ⌘]"
+    tags: [history, navigate]
+  - action: Rename the selected item
+    keys: "⏎"
+    notes: In Finder, Return renames (it does not open).
+  - action: Quick Look the selected item
+    keys: "␣"
+    tags: [preview, space]
+  - action: Show or hide hidden files
+    keys: "⌘⇧."
+    tags: [dotfiles, hidden]
+  - action: Get Info
+    keys: "⌘I"
+  - action: Duplicate
+    keys: "⌘D"
+  - action: Move to Trash
+    keys: "⌘⌫"
+    tags: [delete]
+  - action: Move copied files here (cut/paste)
+    keys: "⌘⌥V"
+    tags: [move, cut, paste]
+  - action: Empty the Trash
+    keys: "⌘⇧⌫"
+  - action: View as list / columns / gallery
+    keys: "⌘2"
+    notes: ⌘1 icons, ⌘2 list, ⌘3 columns, ⌘4 gallery.
+  - action: Open Terminal at the current folder
+    steps:
+      - Right-click the folder (or its name in the path bar at the bottom)
+      - Choose Services → "New Terminal at Folder"
+    notes: >-
+      Enable once in System Settings → Keyboard → Keyboard Shortcuts →
+      Services → Files and Folders → "New Terminal at Folder".
+    tags: [terminal here, open terminal, cd]

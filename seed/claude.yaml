@@ -1,0 +1,21 @@
+app: Claude
+entries:
+  - action: Start a new chat
+    keys: "⌘N"
+    notes: Verify in the Claude app's menus.
+  - action: Send the message
+    keys: "⏎"
+  - action: Insert a newline in the message
+    keys: "⇧⏎"
+    tags: [new line]
+  - action: Search your chats
+    keys: "⌘K"
+    notes: Verify the binding in your Claude app version.
+    tags: [search]
+  - action: Summon Claude from anywhere (global hotkey)
+    steps:
+      - Open Claude → Settings
+      - Set a global keyboard shortcut for the quick launcher
+      - Press that shortcut from any app to summon Claude
+    notes: The Claude desktop app supports a configurable global hotkey.
+    tags: [global, launcher, quick]

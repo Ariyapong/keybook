@@ -1,0 +1,47 @@
+app: VS Code
+entries:
+  - action: Show the Command Palette
+    keys: "⌘⇧P"
+    tags: [commands, palette]
+  - action: Quick Open a file by name
+    keys: "⌘P"
+    tags: [open file, goto]
+  - action: Toggle the integrated terminal
+    keys: "⌃`"
+    tags: [terminal]
+  - action: Toggle the sidebar
+    keys: "⌘B"
+  - action: Add a cursor below
+    keys: "⌘⌥↓"
+    tags: [multi cursor]
+  - action: Select the next occurrence of the selection
+    keys: "⌘D"
+    tags: [multi cursor, select]
+  - action: Go to a line number
+    keys: "⌃G"
+  - action: Go to definition
+    keys: "F12"
+  - action: Rename the symbol
+    keys: "F2"
+    tags: [refactor]
+  - action: Find / Replace in the file
+    keys: "⌘F, ⌥⌘F"
+  - action: Find in all files
+    keys: "⌘⇧F"
+    tags: [search]
+  - action: Toggle line comment
+    keys: "⌘/"
+  - action: Move the current line up / down
+    keys: "⌥↑, ⌥↓"
+  - action: Copy the current line up / down
+    keys: "⇧⌥↑, ⇧⌥↓"
+  - action: Format the document
+    keys: "⇧⌥F"
+  - action: Split the editor
+    keys: "⌘\\"
+  - action: Trigger a Quick Fix
+    keys: "⌘."
+    tags: [lightbulb]
+  - action: Toggle Zen Mode
+    keys: "⌘K, Z"
+    tags: [focus, fullscreen]

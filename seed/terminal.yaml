@@ -1,0 +1,40 @@
+app: Terminal
+entries:
+  - action: Open a new tab
+    keys: "⌘T"
+    tags: [new tab]
+  - action: Open a new window
+    keys: "⌘N"
+  - action: Close the current tab
+    keys: "⌘W"
+  - action: Next / previous tab
+    keys: "⌃⇥, ⌃⇧⇥"
+    tags: [switch tab]
+  - action: Clear the screen and scrollback
+    keys: "⌘K"
+    tags: [clear]
+  - action: Find in the terminal
+    keys: "⌘F"
+  - action: Increase / decrease font size
+    keys: "⌘+, ⌘-"
+  - action: Jump to start / end of line
+    keys: "⌃A, ⌃E"
+    tags: [cursor, beginning, end, readline]
+  - action: Move back / forward one word
+    keys: "⌥B, ⌥F"
+    tags: [cursor, word, readline]
+  - action: Delete to end of line
+    keys: "⌃K"
+    tags: [readline, kill]
+  - action: Delete the previous word
+    keys: "⌃W"
+    tags: [readline]
+  - action: Clear the screen (keep the current line)
+    keys: "⌃L"
+    tags: [readline]
+  - action: Reverse-search command history
+    keys: "⌃R"
+    tags: [history, search, readline]
+  - action: Cancel the current command
+    keys: "⌃C"
+    tags: [interrupt]

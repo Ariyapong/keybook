@@ -1,0 +1,41 @@
+app: tmux
+entries:
+  - action: Prefix key (press before each command below)
+    keys: "⌃B"
+    notes: Default tmux prefix.
+  - action: Create a new window
+    keys: "⌃B, C"
+  - action: Next / previous window
+    keys: "⌃B, N"
+    notes: N next, P previous.
+  - action: Go to window by number
+    keys: "⌃B, 0"
+    notes: 0–9.
+  - action: Split the pane left / right
+    keys: "⌃B, %"
+    tags: [vertical split]
+  - action: Split the pane top / bottom
+    keys: '⌃B, "'
+    tags: [horizontal split]
+  - action: Move between panes
+    keys: "⌃B, →"
+    notes: Use ↑ ↓ ← → to move.
+  - action: Toggle pane zoom
+    keys: "⌃B, Z"
+    tags: [fullscreen pane, maximize]
+  - action: Close the current pane
+    keys: "⌃B, X"
+  - action: Detach from the session
+    keys: "⌃B, D"
+  - action: List sessions
+    keys: "⌃B, S"
+  - action: Rename the current window
+    keys: "⌃B, ,"
+  - action: Enter copy mode (scroll)
+    keys: "⌃B, ["
+    tags: [scroll, copy]
+  - action: Open the command prompt
+    keys: "⌃B, :"
+  - action: Reload the tmux config
+    command: tmux source-file ~/.tmux.conf
+    tags: [reload, config]
