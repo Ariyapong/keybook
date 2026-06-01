@@ -4,10 +4,10 @@ entries:
     keys: "⌃B"
     notes: Default tmux prefix.
   - action: Create a new window
-    keys: "⌃B, C"
+    keys: "⌃B, c"
   - action: Next / previous window
-    keys: "⌃B, N"
-    notes: N next, P previous.
+    keys: "⌃B, n"
+    notes: n next, p previous.
   - action: Go to window by number
     keys: "⌃B, 0"
     notes: 0–9.
@@ -21,14 +21,14 @@ entries:
     keys: "⌃B, →"
     notes: Use ↑ ↓ ← → to move.
   - action: Toggle pane zoom
-    keys: "⌃B, Z"
+    keys: "⌃B, z"
     tags: [fullscreen pane, maximize]
   - action: Close the current pane
-    keys: "⌃B, X"
+    keys: "⌃B, x"
   - action: Detach from the session
-    keys: "⌃B, D"
+    keys: "⌃B, d"
   - action: List sessions
-    keys: "⌃B, S"
+    keys: "⌃B, s"
   - action: Rename the current window
     keys: "⌃B, ,"
   - action: Enter copy mode (scroll)
@@ -50,7 +50,7 @@ entries:
     keys: "⌃B, ␣"
     tags: [layout, arrange]
   - action: Show pane numbers (then press one to jump)
-    keys: "⌃B, Q"
+    keys: "⌃B, q"
     tags: [pane, jump]
   - action: Kill the current window
     keys: "⌃B, &"
