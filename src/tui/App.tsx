@@ -1,4 +1,4 @@
-import { Box, useApp, useInput } from "ink";
+import { Box, useApp, useInput, useStdout } from "ink";
 import { useMemo, useState } from "react";
 import { copyToClipboard } from "../clipboard";
 import type { Entry } from "../data/types";
@@ -7,6 +7,7 @@ import { Footer } from "./Footer";
 import { PreviewPane } from "./PreviewPane";
 import { ResultList } from "./ResultList";
 import { SearchInput } from "./SearchInput";
+import { visibleListHeight } from "./layout";
 
 export interface AppProps {
   entries: Entry[];
@@ -16,6 +17,7 @@ export interface AppProps {
 
 export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppProps) {
   const { exit } = useApp();
+  const { stdout } = useStdout();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [flash, setFlash] = useState("");
@@ -23,6 +25,7 @@ export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppPr
   const results = useMemo(() => search(entries, query), [entries, query]);
   const sel = results.length ? Math.min(selected, results.length - 1) : 0;
   const current = results[sel];
+  const listHeight = visibleListHeight(stdout?.rows);
 
   useInput((input, key) => {
     if (!key.return && flash) setFlash("");
@@ -61,7 +64,7 @@ export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppPr
     <Box flexDirection="column">
       <SearchInput query={query} />
       <Box>
-        <ResultList results={results} selected={sel} query={query} />
+        <ResultList results={results} selected={sel} query={query} height={listHeight} />
         <PreviewPane entry={current} />
       </Box>
       <Footer flash={flash} errorCount={errorCount} resultCount={results.length} />
