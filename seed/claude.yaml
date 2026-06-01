@@ -9,12 +9,8 @@ entries:
     keys: "⇧⏎"
     tags: [new line]
   - action: Search your chats
-    steps:
-      - Open Claude's conversation list / sidebar
-      - Use its search field to filter your past chats
-    notes: >-
-      No verified keyboard shortcut in the Claude desktop app (v1.96) — Edit →
-      Find (⌘F) is in-page find, not chat search. Update if a binding is added.
+    keys: "⌘K"
+    notes: In-app shortcut (not in the menu bar). Distinct from Edit → Find (⌘F).
     tags: [search, find chats]
   - action: Summon Claude from anywhere (global hotkey)
     steps:
