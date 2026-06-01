@@ -38,3 +38,34 @@ entries:
   - action: Cancel the current command
     keys: "⌃C"
     tags: [interrupt]
+  - action: Delete to the start of the line
+    keys: "⌃U"
+    tags: [readline, kill]
+  - action: Delete the character under the cursor (or EOF / logout)
+    keys: "⌃D"
+    notes: On an empty line, ⌃D signals end-of-input and can close the shell.
+    tags: [readline, delete, eof]
+  - action: Paste the last killed (deleted) text
+    keys: "⌃Y"
+    tags: [readline, yank, paste]
+  - action: Delete the next word
+    keys: "⌥D"
+    tags: [readline, word]
+  - action: Swap (transpose) the last two characters
+    keys: "⌃T"
+    tags: [readline, transpose]
+  - action: Suspend the running program, then resume it
+    keys: "⌃Z"
+    command: fg
+    notes: ⌃Z suspends to the background; type `fg` to resume (or `bg` to run it in the background).
+    tags: [suspend, background, job]
+  - action: Repeat the last command / reuse its last argument
+    keys: "!!, !$"
+    notes: >-
+      !! re-runs the previous command (e.g. `sudo !!`); !$ expands to the last
+      argument of the previous command.
+    tags: [history, tip, bang]
+  - action: Edit the current command line in your $EDITOR
+    keys: "⌃X⌃E"
+    notes: Opens the half-typed command in $EDITOR; save and quit to run it (bash/zsh).
+    tags: [readline, editor, tip]
