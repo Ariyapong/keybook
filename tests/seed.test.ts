@@ -15,7 +15,7 @@ describe("seed data", () => {
     expect(entries.length).toBeGreaterThan(50);
   });
 
-  it("covers all eight apps", () => {
+  it("covers every seeded app", () => {
     const { entries } = loadEntries(SEED);
     const apps = new Set(entries.map((e) => e.app));
     for (const a of [
@@ -27,6 +27,7 @@ describe("seed data", () => {
       "tmux",
       "macOS",
       "Claude",
+      "Text editing",
     ]) {
       expect(apps.has(a)).toBe(true);
     }

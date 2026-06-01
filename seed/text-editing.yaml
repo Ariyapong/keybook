@@ -1,0 +1,42 @@
+app: Text editing
+entries:
+  - action: Move one word left / right
+    keys: "⌥←, ⌥→"
+    tags: [word, navigation, cursor]
+  - action: Move to start / end of the line
+    keys: "⌘←, ⌘→"
+    tags: [line, home, end]
+  - action: Move to start / end of the document
+    keys: "⌘↑, ⌘↓"
+    tags: [top, bottom, document]
+  - action: Delete the previous word
+    keys: "⌥⌫"
+    tags: [delete, word, backspace]
+  - action: Delete to the start of the line
+    keys: "⌘⌫"
+    tags: [delete, line]
+  - action: Delete the next word (forward)
+    keys: "fn⌥⌫"
+    notes: ⌫ is Delete (Backspace); fn turns it into Forward Delete (⌦).
+    tags: [delete, word, forward]
+  - action: Select one word left / right
+    keys: "⌥⇧←, ⌥⇧→"
+    tags: [select, word]
+  - action: Select to start / end of the line
+    keys: "⌘⇧←, ⌘⇧→"
+    tags: [select, line]
+  - action: Select to start / end of the document
+    keys: "⌘⇧↑, ⌘⇧↓"
+    tags: [select, document]
+  - action: Select all
+    keys: "⌘A"
+  - action: Undo / redo
+    keys: "⌘Z, ⇧⌘Z"
+  - action: Jump to start / end of line (emacs-style)
+    keys: "⌃A, ⌃E"
+    notes: Works in most macOS native (Cocoa) text fields, not every app.
+    tags: [cursor, readline]
+  - action: Delete to end of line (emacs-style)
+    keys: "⌃K"
+    notes: Cocoa text fields; pairs with ⌃Y to paste it back.
+    tags: [delete, kill]
