@@ -7,10 +7,10 @@ function KeyCaps({ value }: { value: string }) {
   return (
     <Box>
       {chords.map((seg, si) => (
-        <Box key={si}>
+        <Box key={seg.join("")}>
           {si > 0 ? <Text> , </Text> : null}
-          {seg.map((tok, ti) => (
-            <Box key={ti} marginRight={1} borderStyle="round" paddingX={1}>
+          {seg.map((tok) => (
+            <Box key={tok} marginRight={1} borderStyle="round" paddingX={1}>
               <Text bold>{tok}</Text>
             </Box>
           ))}
@@ -29,7 +29,7 @@ export function PreviewPane({ entry }: { entry?: Entry }) {
       <Box marginTop={1} flexDirection="column">
         {entry.keys ? <KeyCaps value={entry.keys} /> : null}
         {entry.steps?.map((s, i) => (
-          <Text key={i}>
+          <Text key={s}>
             {i + 1}. {s}
           </Text>
         ))}

@@ -6,7 +6,12 @@ import { App } from "../src/tui/App";
 const entries: Entry[] = [
   { app: "Finder", action: "Open a new tab", keys: "⌘T", tags: ["new tab"] },
   { app: "Terminal", action: "Clear screen", keys: "⌘K" },
-  { app: "Finder", action: "Open Terminal here", steps: ["Right-click"], command: 'open -a Terminal "$PWD"' },
+  {
+    app: "Finder",
+    action: "Open Terminal here",
+    steps: ["Right-click"],
+    command: 'open -a Terminal "$PWD"',
+  },
 ];
 
 // Ink's useInput registers its stdin listener in an effect that flushes after

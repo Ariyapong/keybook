@@ -12,9 +12,15 @@ export function loadEntries(dataDir: string): LoadResult {
 
   let files: string[];
   try {
-    files = readdirSync(dataDir).filter((f) => YAML_RE.test(f)).sort();
+    files = readdirSync(dataDir)
+      .filter((f) => YAML_RE.test(f))
+      .sort();
   } catch (err) {
-    errors.push({ file: dataDir, entryIndex: null, message: `cannot read data dir: ${(err as Error).message}` });
+    errors.push({
+      file: dataDir,
+      entryIndex: null,
+      message: `cannot read data dir: ${(err as Error).message}`,
+    });
     return { entries, errors };
   }
 
@@ -23,13 +29,21 @@ export function loadEntries(dataDir: string): LoadResult {
     try {
       raw = parseYaml(readFileSync(join(dataDir, file), "utf8"));
     } catch (err) {
-      errors.push({ file, entryIndex: null, message: `YAML parse error: ${(err as Error).message}` });
+      errors.push({
+        file,
+        entryIndex: null,
+        message: `YAML parse error: ${(err as Error).message}`,
+      });
       continue;
     }
 
     const shape = fileShape.safeParse(raw);
     if (!shape.success) {
-      errors.push({ file, entryIndex: null, message: shape.error.issues[0]?.message ?? "invalid file shape" });
+      errors.push({
+        file,
+        entryIndex: null,
+        message: shape.error.issues[0]?.message ?? "invalid file shape",
+      });
       continue;
     }
 
@@ -37,7 +51,11 @@ export function loadEntries(dataDir: string): LoadResult {
     rawEntries.forEach((rawEntry, i) => {
       const parsed = entrySchema.safeParse(rawEntry);
       if (!parsed.success) {
-        errors.push({ file, entryIndex: i, message: parsed.error.issues.map((s) => s.message).join("; ") });
+        errors.push({
+          file,
+          entryIndex: i,
+          message: parsed.error.issues.map((s) => s.message).join("; "),
+        });
         return;
       }
       entries.push({ app, ...parsed.data });

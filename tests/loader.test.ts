@@ -4,7 +4,9 @@ import { tmpDataDir } from "./_helpers";
 
 describe("loadEntries", () => {
   it("loads entries and injects the file-level app", () => {
-    const dir = tmpDataDir({ "finder.yaml": 'app: Finder\nentries:\n  - action: New tab\n    keys: "⌘T"\n' });
+    const dir = tmpDataDir({
+      "finder.yaml": 'app: Finder\nentries:\n  - action: New tab\n    keys: "⌘T"\n',
+    });
     const { entries, errors } = loadEntries(dir);
     expect(errors).toHaveLength(0);
     expect(entries[0]).toMatchObject({ app: "Finder", action: "New tab", keys: "⌘T" });

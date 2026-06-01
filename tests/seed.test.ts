@@ -18,7 +18,16 @@ describe("seed data", () => {
   it("covers all eight apps", () => {
     const { entries } = loadEntries(SEED);
     const apps = new Set(entries.map((e) => e.app));
-    for (const a of ["Finder", "Terminal", "VS Code", "Microsoft Edge", "Fork", "tmux", "macOS", "Claude"]) {
+    for (const a of [
+      "Finder",
+      "Terminal",
+      "VS Code",
+      "Microsoft Edge",
+      "Fork",
+      "tmux",
+      "macOS",
+      "Claude",
+    ]) {
       expect(apps.has(a)).toBe(true);
     }
   });

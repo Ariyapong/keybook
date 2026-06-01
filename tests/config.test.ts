@@ -7,10 +7,16 @@ import { tmpDataDir } from "./_helpers";
 
 describe("resolveDataDir", () => {
   it("prefers KEYBOOK_DATA_DIR", () => {
-    expect(resolveDataDir({ KEYBOOK_DATA_DIR: "/custom" })).toEqual({ dir: "/custom", source: "env" });
+    expect(resolveDataDir({ KEYBOOK_DATA_DIR: "/custom" })).toEqual({
+      dir: "/custom",
+      source: "env",
+    });
   });
   it("falls back to XDG_CONFIG_HOME", () => {
-    expect(resolveDataDir({ XDG_CONFIG_HOME: "/xdg" })).toEqual({ dir: "/xdg/keybook", source: "xdg" });
+    expect(resolveDataDir({ XDG_CONFIG_HOME: "/xdg" })).toEqual({
+      dir: "/xdg/keybook",
+      source: "xdg",
+    });
   });
   it("defaults to ~/.config/keybook", () => {
     const r = resolveDataDir({});
