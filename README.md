@@ -50,6 +50,36 @@ entries:
 Add entries by hand, or ask an AI assistant to append them and run
 `keybook check` before committing.
 
+## Development
+
+Requires Node 22+ and pnpm. One-shot setup after cloning:
+
+```bash
+git clone https://github.com/Ariyapong/keybook.git
+cd keybook
+./scripts/dev-setup.sh    # checks Node, enables pnpm, installs, runs tests
+```
+
+Or manually:
+
+```bash
+corepack enable           # enables pnpm (or: npm i -g pnpm)
+pnpm install
+pnpm test                 # run the suite
+pnpm build                # bundle to dist/cli.js
+pnpm dev                  # run the TUI from source (tsx)
+```
+
+Also available: `pnpm typecheck`, `pnpm lint`, `pnpm format`.
+
+**Layout:** `src/data` (zod schema + YAML loader), `src/config.ts` (data dir +
+first-run seeding), `src/search.ts` (fzf), `src/tui` (Ink components),
+`src/cli.ts` (commander entry), `seed/` (bundled starter data). Design docs are
+in `docs/superpowers/`.
+
+If `pnpm lint` reports a missing Biome binary, run `pnpm approve-builds`
+(pnpm skips package build scripts by default).
+
 ## License
 
 MIT
