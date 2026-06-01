@@ -45,3 +45,21 @@ entries:
   - action: Toggle Zen Mode
     keys: "⌘K, Z"
     tags: [focus, fullscreen]
+  - action: Delete the current line
+    keys: "⌘⇧K"
+    tags: [delete line]
+  - action: Insert a line below / above
+    keys: "⌘⏎, ⇧⌘⏎"
+    tags: [new line]
+  - action: Select all occurrences of the current selection
+    keys: "⌘⇧L"
+    tags: [multi cursor, select]
+  - action: Go to the next problem (error / warning)
+    keys: "F8"
+    tags: [errors, diagnostics]
+  - action: Navigate back / forward (cursor history)
+    keys: "⌃-, ⌃⇧-"
+    tags: [navigate, history, goto]
+  - action: Open Keyboard Shortcuts
+    keys: "⌘K, ⌘S"
+    tags: [keybindings, shortcuts]
