@@ -10,13 +10,24 @@ shortcuts along the way.
 ## Install
 
 ```bash
-npm install -g @arthony/keybook
-# or run without installing:
-npx @arthony/keybook
+brew install ariyapong/tap/keybook
 ```
 
-Requires Node 22+ and macOS. The package is published under the `@arthony`
-scope, but the commands it installs are still `keybook` (and the `kb` alias).
+Or via npm:
+
+```bash
+npm install -g @arthony/keybook
+# or run without installing:
+npx -p @arthony/keybook keybook
+```
+
+Requires macOS. The Homebrew tap installs Node 22 automatically; the npm
+route assumes you already have Node 22+. Both install the `keybook`
+command and the `kb` alias.
+
+**Terminal.app users:** if `⌥⌫` doesn't delete a word in the search input,
+enable *Terminal → Settings → Profiles → Keyboard → "Use Option as Meta
+key"*, or use `⌃W` (works in any terminal).
 
 ## Usage
 
