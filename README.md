@@ -5,6 +5,8 @@ shortcuts and short recipes of your most-used apps. Launch `keybook`,
 fuzzy-search by intent ("finder new tab", "terminal here"), and learn your
 shortcuts along the way.
 
+![keybook demo: fuzzy-search a shortcut, then a multi-step recipe](docs/demo/keybook.gif)
+
 ## Install
 
 ```bash
