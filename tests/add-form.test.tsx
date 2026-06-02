@@ -76,4 +76,61 @@ describe("AddEntryForm", () => {
     await tick();
     expect(onCancel).toHaveBeenCalled();
   });
+
+  it("lets you create a new app and submits with the typed name", async () => {
+    const onSubmit = vi.fn(() => ok);
+    const { stdin } = setup(onSubmit);
+    await tick();
+    // Field 0 (App): only "Fork" + "Create new app…" — one downArrow lands on it.
+    stdin.write("\x1b[B"); // downArrow -> "Create new app…"
+    await tick();
+    stdin.write("Zed"); // type the new app name in the revealed input
+    await tick();
+    stdin.write("\r"); // ⏎ -> advance to Type
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Action
+    await tick();
+    stdin.write("Run"); // action
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Keys
+    await tick();
+    stdin.write("cmd r"); // keys
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm
+    await tick();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith("Zed", expect.objectContaining({ action: "Run" }));
+  });
+
+  it("counts a typed-but-not-appended recipe step when entering review", async () => {
+    const onSubmit = vi.fn(() => ok);
+    const { stdin, lastFrame } = setup(onSubmit);
+    await tick();
+    // App stays "Fork" (index 0); advance to Type.
+    stdin.write("\x0e"); // ⌃N -> Type
+    await tick();
+    // Type field: shortcut -> command -> recipe via right/space twice.
+    stdin.write(" "); // -> command
+    await tick();
+    stdin.write(" "); // -> recipe
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Action
+    await tick();
+    stdin.write("Open Terminal here"); // action
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Steps
+    await tick();
+    stdin.write("Right-click the folder"); // ONE step line, no ⏎ (left pending)
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Tags (pending stepLine stays in the draft)
+    await tick();
+    stdin.write("\r"); // go to review — pending step is flushed, should NOT error
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Review");
+    expect(out).toContain("Right-click the folder");
+    expect(out).not.toContain("at least one step");
+  });
 });

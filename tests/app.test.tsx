@@ -145,4 +145,32 @@ describe("App", () => {
     await tick();
     expect(lastFrame()).toContain("search:");
   });
+
+  it("adds an entry to an existing app via ⌃O, reloads, and flashes success", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x0f"); // ⌃O -> add form (App field, "Fork" highlighted at index 0)
+    await tick();
+    stdin.write("\r"); // ⏎ -> Type
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Action
+    await tick();
+    stdin.write("Force push"); // action
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Keys
+    await tick();
+    stdin.write("cmd shift k"); // keys
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm -> write + reload + flash
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Force push"); // reloaded results contain the new action
+    expect(out).toContain("✓"); // success flash
+  });
 });

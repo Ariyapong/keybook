@@ -43,6 +43,16 @@ export function resolvedApp(d: Draft): string {
   return (d.creatingApp ? d.newApp : d.app).trim();
 }
 
+/**
+ * Flush a typed-but-not-yet-appended recipe step (`stepLine`) into `steps`.
+ * Returns `d` unchanged when `stepLine` is empty after trimming.
+ */
+export function flushStep(d: Draft): Draft {
+  const line = d.stepLine.trim();
+  if (!line) return d;
+  return { ...d, steps: [...d.steps, line], stepLine: "" };
+}
+
 export function validateDraft(d: Draft): string | null {
   if (!resolvedApp(d)) return "App is required";
   if (!d.action.trim()) return "Action is required";
@@ -64,8 +74,8 @@ export function draftToEntryInput(d: Draft): EntryInput {
   return e;
 }
 
-export function useAddForm() {
-  const [draft, setDraft] = useState<Draft>(emptyDraft);
+export function useAddForm(initialApp = "") {
+  const [draft, setDraft] = useState<Draft>(() => ({ ...emptyDraft, app: initialApp }));
   const update = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
   return { draft, update, setDraft };
 }

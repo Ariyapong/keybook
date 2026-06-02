@@ -1,3 +1,4 @@
+import { basename } from "node:path";
 import { Box, Text, useInput } from "ink";
 import { useState } from "react";
 import type { AddResult, EntryInput } from "../data/types";
@@ -6,6 +7,7 @@ import { ReviewScreen } from "./ReviewScreen";
 import {
   type EntryType,
   draftToEntryInput,
+  flushStep,
   resolvedApp,
   useAddForm,
   validateDraft,
@@ -20,10 +22,20 @@ export interface AddEntryFormProps {
   onSubmit: (app: string, entry: EntryInput) => AddResult;
   onComplete?: (result: AddResult) => void;
   onCancel: () => void;
+  resolveTarget?: (app: string) => { file: string; created: boolean };
 }
 
-export function AddEntryForm({ apps, onSubmit, onComplete, onCancel }: AddEntryFormProps) {
-  const { draft, update } = useAddForm();
+export function AddEntryForm({
+  apps,
+  existingTags,
+  onSubmit,
+  onComplete,
+  onCancel,
+  resolveTarget,
+}: AddEntryFormProps) {
+  // Start synced to the highlighted choice (appIndex 0) so the draft is in sync
+  // even if the user advances past field 0 without pressing ↑/↓.
+  const { draft, update, setDraft } = useAddForm(apps[0] ?? "");
   const [focused, setFocused] = useState(0);
   const [appIndex, setAppIndex] = useState(0);
   const [screen, setScreen] = useState<"form" | "review">("form");
@@ -32,32 +44,37 @@ export function AddEntryForm({ apps, onSubmit, onComplete, onCancel }: AddEntryF
 
   const appChoices = [...apps, "Create new app…"];
 
-  function commitAppSelection() {
-    if (appIndex === apps.length) update({ creatingApp: true, app: "" });
-    else update({ creatingApp: false, app: apps[appIndex] ?? "" });
+  // Keep the draft's app in sync with the highlighted choice so there's never
+  // any divergence between appIndex and what gets validated/submitted.
+  function commitAppSelection(index: number) {
+    if (index === apps.length) update({ creatingApp: true });
+    else update({ creatingApp: false, app: apps[index] ?? "" });
   }
 
   function goReview() {
-    commitAppSelection();
-    const v = validateDraft({
-      ...draft,
-      app: appIndex < apps.length ? (apps[appIndex] ?? "") : draft.app,
-      creatingApp: appIndex === apps.length,
-    });
+    const d = flushStep(draft);
+    const v = validateDraft(d);
     if (v) {
       setHint(v);
       return;
     }
     setHint("");
+    setDraft(d);
     setScreen("review");
   }
+
+  const review = flushStep(draft);
+  const target = resolveTarget?.(resolvedApp(review));
+  const targetPath = target
+    ? `${basename(target.file)}${target.created ? " (new)" : ""}`
+    : `${resolvedApp(review)} file`;
 
   useInput((input, key) => {
     if (screen === "review") {
       if (key.escape) return onCancel();
       if (input === "e") return setScreen("form");
       if (key.return) {
-        const result = onSubmit(resolvedApp(draft), draftToEntryInput(draft));
+        const result = onSubmit(resolvedApp(review), draftToEntryInput(review));
         if (result.ok) onComplete?.(result);
         else setWriteError(result.lines.join("; "));
       }
@@ -68,20 +85,28 @@ export function AddEntryForm({ apps, onSubmit, onComplete, onCancel }: AddEntryF
     if (key.ctrl && input === "n") return setFocused((f) => Math.min(f + 1, LAST_FIELD));
     if (key.ctrl && input === "p") return setFocused((f) => Math.max(f - 1, 0));
 
-    // Field 0: app selection
-    if (focused === 0 && !draft.creatingApp) {
-      if (key.upArrow) return setAppIndex((i) => Math.max(i - 1, 0));
-      if (key.downArrow) return setAppIndex((i) => Math.min(i + 1, appChoices.length - 1));
-      if (key.return) {
-        commitAppSelection();
-        return setFocused(1);
+    // Field 0: app selection. ↑/↓ move the highlight AND sync the draft so it
+    // always tracks the highlighted choice (no appIndex/draft divergence).
+    if (focused === 0) {
+      if (key.upArrow) {
+        const next = Math.max(appIndex - 1, 0);
+        setAppIndex(next);
+        return commitAppSelection(next);
       }
-      return;
-    }
-    if (focused === 0 && draft.creatingApp) {
+      if (key.downArrow) {
+        const next = Math.min(appIndex + 1, appChoices.length - 1);
+        setAppIndex(next);
+        return commitAppSelection(next);
+      }
+      // When "Create new app…" is highlighted, type the name here, then advance
+      // with ⏎ (⌃N/⌃P are handled by the navigation block above).
+      if (draft.creatingApp) {
+        if (key.return) return setFocused(1);
+        if (key.backspace || key.delete) return update({ newApp: draft.newApp.slice(0, -1) });
+        if (input && !key.ctrl && !key.meta) return update({ newApp: draft.newApp + input });
+        return;
+      }
       if (key.return) return setFocused(1);
-      if (key.backspace || key.delete) return update({ newApp: draft.newApp.slice(0, -1) });
-      if (input && !key.ctrl && !key.meta) return update({ newApp: draft.newApp + input });
       return;
     }
 
@@ -134,9 +159,9 @@ export function AddEntryForm({ apps, onSubmit, onComplete, onCancel }: AddEntryF
   if (screen === "review") {
     return (
       <ReviewScreen
-        app={resolvedApp(draft)}
-        entry={draftToEntryInput(draft)}
-        targetPath={`${resolvedApp(draft)} file`}
+        app={resolvedApp(review)}
+        entry={draftToEntryInput(review)}
+        targetPath={targetPath}
         error={writeError}
       />
     );
@@ -146,7 +171,13 @@ export function AddEntryForm({ apps, onSubmit, onComplete, onCancel }: AddEntryF
     <Box flexDirection="column">
       <Text color="cyan">keybook add</Text>
       <Box marginTop={1}>
-        <FormFields draft={draft} apps={apps} appIndex={appIndex} focused={focused} />
+        <FormFields
+          draft={draft}
+          apps={apps}
+          appIndex={appIndex}
+          focused={focused}
+          existingTags={existingTags}
+        />
       </Box>
       <Box marginTop={1}>
         <Text color={hint ? "red" : "gray"}>
