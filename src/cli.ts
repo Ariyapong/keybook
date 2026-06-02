@@ -110,21 +110,19 @@ program
 
     const { entries } = loadEntries(dir);
     const existingTags = [...new Set(entries.flatMap((e) => e.tags ?? []))].sort();
-    const prefill = { app, action, keys, command, steps, tags, notes };
-    const { waitUntilExit } = render(
+    const instance = render(
       createElement(AddEntryForm, {
         apps: listApps(dir),
         existingTags,
-        // prefill is available for a future enhancement; the form starts empty in v0.3
         onSubmit: (a: string, entry: EntryInput) => addEntry(dir, a, entry),
         onComplete: (result: AddResult) => {
           for (const line of result.lines) console.log(line);
+          instance.unmount();
         },
-        onCancel: () => process.exit(0),
+        onCancel: () => instance.unmount(),
       }),
     );
-    void prefill;
-    waitUntilExit().then(() => process.exit(0));
+    instance.waitUntilExit().then(() => process.exit(0));
   });
 
 program.action(() => {
