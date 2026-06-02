@@ -1,4 +1,7 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { render } from "ink";
 import { createElement } from "react";
@@ -7,11 +10,14 @@ import { ensureDataDir, resolveDataDir } from "./config";
 import { loadEntries } from "./data/loader";
 import { App } from "./tui/App";
 
+const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
+const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version: string };
+
 const program = new Command();
 program
   .name("keybook")
   .description("Search keyboard shortcuts & recipes for your apps")
-  .version("0.1.0");
+  .version(pkg.version);
 
 program
   .command("path")

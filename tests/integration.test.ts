@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -25,5 +25,11 @@ describe("keybook CLI (built)", () => {
       encoding: "utf8",
     });
     expect(out).toContain("OK");
+  });
+
+  it("`--version` matches package.json", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { version: string };
+    const out = execFileSync("node", ["dist/cli.js", "--version"], { encoding: "utf8" }).trim();
+    expect(out).toBe(pkg.version);
   });
 });
