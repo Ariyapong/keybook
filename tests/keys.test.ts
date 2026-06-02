@@ -29,4 +29,7 @@ describe("normalizeKeys", () => {
   it("preserves unrecognized tokens verbatim", () => {
     expect(normalizeKeys("foo")).toBe("foo");
   });
+  it("does not uppercase non-letter single-char tokens", () => {
+    expect(normalizeKeys(":wq")).toBe(":wq");
+  });
 });

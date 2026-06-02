@@ -9,7 +9,7 @@ import { runAdd, runCheck, runPath } from "./commands";
 import { ensureDataDir, resolveDataDir } from "./config";
 import { loadEntries } from "./data/loader";
 import type { AddResult, EntryInput } from "./data/types";
-import { addEntry, listApps } from "./data/writer";
+import { addEntry, listApps, resolveTargetFile } from "./data/writer";
 import { AddEntryForm } from "./tui/AddEntryForm";
 import { App } from "./tui/App";
 
@@ -63,7 +63,12 @@ program
   .option("--notes <text>", "notes")
   .action((opts: Record<string, string | string[] | undefined>) => {
     const { dir } = resolveDataDir();
-    ensureDataDir(dir);
+    try {
+      ensureDataDir(dir);
+    } catch (e) {
+      console.error(`Error: could not prepare data directory ${dir}: ${(e as Error).message}`);
+      process.exit(1);
+    }
 
     const app = opts.app as string | undefined;
     const action = opts.action as string | undefined;
@@ -114,9 +119,10 @@ program
       createElement(AddEntryForm, {
         apps: listApps(dir),
         existingTags,
+        resolveTarget: (a: string) => resolveTargetFile(dir, a),
         onSubmit: (a: string, entry: EntryInput) => addEntry(dir, a, entry),
         onComplete: (result: AddResult) => {
-          for (const line of result.lines) console.log(line);
+          if (result.lines[0]) console.log(result.lines[0]);
           instance.unmount();
         },
         onCancel: () => instance.unmount(),

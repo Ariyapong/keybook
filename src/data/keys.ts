@@ -53,7 +53,7 @@ function normalizeSegment(seg: string): string {
     } else if (NAMED[low]) {
       keys.push(NAMED[low]);
     } else {
-      keys.push(tok.length === 1 ? tok.toUpperCase() : tok);
+      keys.push(tok.length === 1 && /[a-z]/i.test(tok) ? tok.toUpperCase() : tok);
     }
   }
   const orderedMods = MOD_ORDER.filter((m) => mods.has(m));
