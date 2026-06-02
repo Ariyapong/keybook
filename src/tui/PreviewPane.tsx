@@ -1,26 +1,6 @@
 import { Box, Text } from "ink";
 import type { Entry } from "../data/types";
-import { parseKeys } from "./keycaps";
-
-function KeyCaps({ value }: { value: string }) {
-  const chords = parseKeys(value);
-  return (
-    <Box>
-      {chords.map((seg, si) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: token order is stable; tokens can repeat (e.g. ⌃X⌃E) so the value is not a unique key
-        <Box key={si}>
-          {si > 0 ? <Text> , </Text> : null}
-          {seg.map((tok, ti) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: see above — repeated tokens make the value non-unique
-            <Box key={ti} marginRight={1} borderStyle="round" paddingX={1}>
-              <Text bold>{tok}</Text>
-            </Box>
-          ))}
-        </Box>
-      ))}
-    </Box>
-  );
-}
+import { KeyCaps } from "./key-caps";
 
 export function PreviewPane({ entry, width = "50%" }: { entry?: Entry; width?: number | string }) {
   if (!entry) return null;
