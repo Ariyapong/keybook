@@ -66,4 +66,52 @@ describe("App", () => {
     await tick();
     expect(onCopy).toHaveBeenCalledWith('open -a Terminal "$PWD"');
   });
+
+  it("deletes the previous word on Option+Backspace (meta+delete)", async () => {
+    const { lastFrame, stdin } = render(<App entries={entries} />);
+    await tick();
+    stdin.write("clear new");
+    await tick();
+    // Ink reports Option+Backspace as Escape-prefixed Delete (0x7f).
+    stdin.write("\x1b\x7f");
+    await tick();
+    // Ink strips trailing whitespace from rendered lines, so we can't assert
+    // on the trailing space; assert the substantive behavior — "clear" stays,
+    // the trailing word "new" is gone.
+    expect(lastFrame()).toContain("search: clear");
+    expect(lastFrame()).not.toContain("clear new");
+  });
+
+  it("deletes the previous word on Ctrl+W", async () => {
+    const { lastFrame, stdin } = render(<App entries={entries} />);
+    await tick();
+    stdin.write("clear new");
+    await tick();
+    stdin.write("\x17"); // Ctrl+W
+    await tick();
+    expect(lastFrame()).toContain("search: clear");
+    expect(lastFrame()).not.toContain("clear new");
+  });
+
+  it("clears the entire query on Ctrl+U", async () => {
+    const { lastFrame, stdin } = render(<App entries={entries} />);
+    await tick();
+    stdin.write("anything goes");
+    await tick();
+    stdin.write("\x15"); // Ctrl+U
+    await tick();
+    expect(lastFrame()).toContain("search:");
+    expect(lastFrame()).not.toContain("anything");
+  });
+
+  it("still deletes a single character on plain Backspace (regression)", async () => {
+    const { lastFrame, stdin } = render(<App entries={entries} />);
+    await tick();
+    stdin.write("clear");
+    await tick();
+    stdin.write("\x7f"); // Backspace
+    await tick();
+    expect(lastFrame()).toContain("search: clea");
+    expect(lastFrame()).not.toMatch(/search: clear[^\w]/);
+  });
 });

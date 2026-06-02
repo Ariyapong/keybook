@@ -7,6 +7,7 @@ import { Footer } from "./Footer";
 import { PreviewPane } from "./PreviewPane";
 import { ResultList } from "./ResultList";
 import { SearchInput } from "./SearchInput";
+import { deleteWordBack } from "./input";
 import { columnWidths, visibleListHeight } from "./layout";
 
 export interface AppProps {
@@ -48,6 +49,16 @@ export function App({ entries, errorCount = 0, onCopy = copyToClipboard }: AppPr
         const text = current.keys ?? current.command ?? `${current.app}: ${current.action}`;
         setFlash(onCopy(text) ? "✓ copied!" : "✗ copy failed");
       }
+      return;
+    }
+    if ((key.meta && (key.backspace || key.delete)) || (key.ctrl && input === "w")) {
+      setQuery(deleteWordBack);
+      setSelected(0);
+      return;
+    }
+    if (key.ctrl && input === "u") {
+      setQuery("");
+      setSelected(0);
       return;
     }
     if (key.backspace || key.delete) {
