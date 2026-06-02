@@ -133,7 +133,7 @@ program.action(() => {
   if (init.initialized) console.log(`Initialized ${dir} from seed (${init.fileCount} files).`);
   const { entries, errors } = loadEntries(dir);
   for (const e of errors) console.error(`⚠ ${e.file}: ${e.message}`);
-  render(createElement(App, { entries, errorCount: errors.length }));
+  render(createElement(App, { entries, errorCount: errors.length, dataDir: dir }));
 });
 
 program.parse();
