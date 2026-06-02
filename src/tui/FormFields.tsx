@@ -20,11 +20,13 @@ export function FormFields({
   apps,
   appIndex,
   focused,
+  existingTags,
 }: {
   draft: Draft;
   apps: string[];
   appIndex: number;
   focused: number;
+  existingTags?: string[];
 }) {
   const appChoices = [...apps, "Create new app…"];
   return (
@@ -74,6 +76,9 @@ export function FormFields({
       )}
       {/* 4: tags */}
       <Field label="Tags" value={draft.tags} focused={focused === 4} />
+      {focused === 4 && existingTags && existingTags.length > 0 ? (
+        <Text color="gray">{`${"".padEnd(8)}e.g. ${existingTags.slice(0, 6).join(", ")}`}</Text>
+      ) : null}
       {/* 5: notes */}
       <Field label="Notes" value={draft.notes} focused={focused === 5} />
     </Box>

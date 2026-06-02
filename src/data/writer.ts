@@ -67,6 +67,16 @@ function freshPath(dir: string, app: string): string {
   return join(dir, name);
 }
 
+/**
+ * Resolve where an entry for `app` would be written, without writing anything.
+ * Returns the existing file (created:false) or the fresh slug path (created:true).
+ */
+export function resolveTargetFile(dir: string, app: string): { file: string; created: boolean } {
+  const existing = findFileForApp(dir, app);
+  if (existing) return { file: existing, created: false };
+  return { file: freshPath(dir, app), created: true };
+}
+
 function buildClean(e: EntryInput): EntryInput {
   const out: EntryInput = { action: e.action };
   if (e.keys) out.keys = e.keys;

@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { copyToClipboard } from "../clipboard";
 import { loadEntries } from "../data/loader";
 import type { AddResult, Entry, EntryInput } from "../data/types";
-import { addEntry, listApps } from "../data/writer";
+import { addEntry, listApps, resolveTargetFile } from "../data/writer";
 import { search } from "../search";
 import { AddEntryForm } from "./AddEntryForm";
 import { Footer } from "./Footer";
@@ -100,6 +100,7 @@ export function App({
       <AddEntryForm
         apps={listApps(dataDir)}
         existingTags={existingTags}
+        resolveTarget={(a: string) => resolveTargetFile(dataDir, a)}
         onSubmit={(app: string, entry: EntryInput): AddResult => addEntry(dataDir, app, entry)}
         onComplete={(result: AddResult) => {
           if (result.ok) {

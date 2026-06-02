@@ -1,8 +1,8 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, readdirSync } from "node:fs";
+import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadEntries } from "../src/data/loader";
-import { addEntry, listApps } from "../src/data/writer";
+import { addEntry, listApps, resolveTargetFile } from "../src/data/writer";
 import { tmpDataDir } from "./_helpers";
 
 const FORK = `app: Fork
@@ -23,6 +23,24 @@ describe("listApps", () => {
   it("includes apps from files whose entries are invalid, as long as app is readable", () => {
     const dir = tmpDataDir({ "broken.yaml": "app: Broken\nentries:\n  - notAField: 1\n" });
     expect(listApps(dir)).toEqual(["Broken"]);
+  });
+});
+
+describe("resolveTargetFile", () => {
+  it("returns the existing file for a known app and a fresh slug for a new one, without writing", () => {
+    const dir = tmpDataDir({ "fork.yaml": FORK });
+    const before = readdirSync(dir).sort();
+
+    const known = resolveTargetFile(dir, "Fork");
+    expect(basename(known.file)).toBe("fork.yaml");
+    expect(known.created).toBe(false);
+
+    const fresh = resolveTargetFile(dir, "My App");
+    expect(basename(fresh.file)).toBe("my-app.yaml");
+    expect(fresh.created).toBe(true);
+
+    // Nothing was written.
+    expect(readdirSync(dir).sort()).toEqual(before);
   });
 });
 

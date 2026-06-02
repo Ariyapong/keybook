@@ -12,6 +12,20 @@ describe("FormFields", () => {
     );
     expect(lastFrame() ?? "").toContain("⇧⌘P");
   });
+
+  it("hints at existing tags when the Tags field is focused", () => {
+    const draft = { ...emptyDraft, app: "Fork", type: "shortcut" as const };
+    const { lastFrame } = render(
+      <FormFields
+        draft={draft}
+        apps={["Fork"]}
+        appIndex={0}
+        focused={4}
+        existingTags={["push", "pull"]}
+      />,
+    );
+    expect(lastFrame() ?? "").toContain("push");
+  });
 });
 
 describe("ReviewScreen", () => {
