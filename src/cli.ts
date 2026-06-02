@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { render } from "ink";
 import { createElement } from "react";
-import { runCheck, runPath } from "./commands";
+import { runAdd, runCheck, runPath } from "./commands";
 import { ensureDataDir, resolveDataDir } from "./config";
 import { loadEntries } from "./data/loader";
 import { App } from "./tui/App";
@@ -46,6 +46,67 @@ program
     const result = runCheck(dir);
     for (const line of result.lines) (result.ok ? console.log : console.error)(line);
     process.exit(result.ok ? 0 : 1);
+  });
+
+program
+  .command("add")
+  .description("Add a new entry (interactive, or non-interactive with flags)")
+  .option("--app <name>", "target app")
+  .option("--action <text>", "what the entry does")
+  .option("--keys <combo>", "key combo (glyphs or words, e.g. 'shift cmd p')")
+  .option("--command <cmd>", "terminal command")
+  .option("--step <text...>", "recipe step (repeatable)")
+  .option("--tags <list>", "comma-separated tags")
+  .option("--notes <text>", "notes")
+  .action((opts: Record<string, string | string[] | undefined>) => {
+    const { dir } = resolveDataDir();
+    ensureDataDir(dir);
+
+    const app = opts.app as string | undefined;
+    const action = opts.action as string | undefined;
+    const keys = opts.keys as string | undefined;
+    const command = opts.command as string | undefined;
+    const steps = (opts.step as string[] | undefined) ?? undefined;
+    const tags =
+      typeof opts.tags === "string"
+        ? opts.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : undefined;
+    const notes = opts.notes as string | undefined;
+
+    const haveBody = Boolean(keys || command || steps?.length);
+    const complete = Boolean(app && action && haveBody);
+
+    if (complete) {
+      const result = runAdd(dir, {
+        app: app as string,
+        action: action as string,
+        keys,
+        command,
+        steps,
+        tags,
+        notes,
+      });
+      for (const line of result.lines) (result.ok ? console.log : console.error)(line);
+      process.exit(result.ok ? 0 : 1);
+    }
+
+    if (!process.stdout.isTTY) {
+      const missing = [
+        !app && "--app",
+        !action && "--action",
+        !haveBody && "--keys/--command/--step",
+      ]
+        .filter(Boolean)
+        .join(", ");
+      console.error(`Error: missing required field(s): ${missing}`);
+      process.exit(2);
+    }
+
+    // Interactive fallback wired in Task 11.
+    console.log("(interactive add — coming in Task 11)");
   });
 
 program.action(() => {
