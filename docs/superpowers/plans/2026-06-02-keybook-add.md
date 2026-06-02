@@ -28,7 +28,7 @@
 | `src/data/writer.ts` | **New.** `listApps(dir)` and `addEntry(dir, app, entry)` — the only YAML writer. |
 | `src/commands.ts` | **Modify.** `runAdd(dir, draft)` → `{ ok, lines }`, mirroring `runCheck`. |
 | `src/cli.ts` | **Modify.** Register `add` subcommand: flag mode + interactive render + dispatch. |
-| `src/tui/KeyCaps.tsx` | **New.** Extracted from `PreviewPane` so `ReviewScreen` can reuse it. |
+| `src/tui/key-caps.tsx` | **New.** Extracted from `PreviewPane` so `ReviewScreen` can reuse it. (Kebab-case to avoid a case-insensitive-FS collision with the existing `keycaps.ts` parser.) |
 | `src/tui/PreviewPane.tsx` | **Modify.** Import `KeyCaps` instead of defining it. |
 | `src/tui/useAddForm.ts` | **New.** `Draft` type, pure helpers (`parseTags`, `validateDraft`, `draftToEntryInput`, `resolvedApp`), and the `useAddForm` hook. |
 | `src/tui/StepsBuilder.tsx` | **New.** Stateless append-only steps view. |
@@ -649,12 +649,14 @@ git commit -m "feat(cli): keybook add flag mode (exit 0/1/2; --keys normalized)"
 ## Task 6: Extract `KeyCaps` for reuse
 
 **Files:**
-- Create: `src/tui/KeyCaps.tsx`
+- Create: `src/tui/key-caps.tsx`
 - Modify: `src/tui/PreviewPane.tsx`
 
 > Pure refactor — no behavior change. Existing `tests/tui-components.test.tsx` (incl. the `⌃X⌃E` duplicate-key regression) must stay green.
+>
+> **Filename note:** the module is `key-caps.tsx` (kebab-case), **not** `KeyCaps.tsx`. On a case-insensitive macOS filesystem `KeyCaps.tsx` collides with the existing `keycaps.ts` parser, and `moduleResolution: "Bundler"` would resolve `./KeyCaps` to the parser (which has no `KeyCaps` export). The exported symbol is still `KeyCaps`.
 
-- [ ] **Step 1: Create `src/tui/KeyCaps.tsx`** (move the function out of `PreviewPane.tsx` verbatim)
+- [ ] **Step 1: Create `src/tui/key-caps.tsx`** (move the function out of `PreviewPane.tsx` verbatim)
 
 ```tsx
 import { Box, Text } from "ink";
@@ -684,7 +686,7 @@ export function KeyCaps({ value }: { value: string }) {
 - [ ] **Step 2: Update `src/tui/PreviewPane.tsx`** — delete the local `KeyCaps` function and `import { parseKeys }`, and add:
 
 ```tsx
-import { KeyCaps } from "./KeyCaps";
+import { KeyCaps } from "./key-caps";
 ```
 
 (The rest of `PreviewPane` is unchanged; it still calls `<KeyCaps value={entry.keys} />`.)
@@ -697,7 +699,7 @@ Expected: PASS — same output as before.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/tui/KeyCaps.tsx src/tui/PreviewPane.tsx
+git add src/tui/key-caps.tsx src/tui/PreviewPane.tsx
 git commit -m "refactor(tui): extract KeyCaps into its own module"
 ```
 
@@ -1035,7 +1037,7 @@ export function FormFields({
 ```tsx
 import { Box, Text } from "ink";
 import type { EntryInput } from "../data/types";
-import { KeyCaps } from "./KeyCaps";
+import { KeyCaps } from "./key-caps";
 
 export function ReviewScreen({
   app,
