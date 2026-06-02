@@ -78,9 +78,6 @@ first-run seeding), `src/search.ts` (fzf), `src/tui` (Ink components),
 `src/cli.ts` (commander entry), `seed/` (bundled starter data). Design docs are
 in `docs/superpowers/`.
 
-If `pnpm lint` reports a missing Biome binary, run `pnpm approve-builds`
-(pnpm skips package build scripts by default).
-
 ## License
 
 MIT
