@@ -1,5 +1,14 @@
 app: Nano
 entries:
+  - action: "Heads-up: on macOS, `nano` is actually Apple's pico"
+    keys: "—"
+    notes: >-
+      macOS ships /usr/bin/nano as a symlink to Apple's pico (UW PICO 5.09),
+      an SIP-protected, Apple-signed system binary — not GNU nano. Pico is
+      minimal: no undo/redo, no go-to-line, no search-and-replace, and its
+      keys can't be remapped. Entries tagged [gnu-only] below need real GNU
+      nano (brew install nano), which also lets you rebind keys via ~/.nanorc.
+    tags: [platform, macos, pico, gnu-only, note]
   - action: Save the file (write out)
     keys: "⌃O"
     tags: [save, write]
@@ -23,24 +32,56 @@ entries:
     keys: "⌃W"
     notes: After ⌃W, press ⏎ again to repeat the last search.
     tags: [find, search]
-  - action: Search and replace
-    keys: "⌃\\"
-    tags: [replace]
-  - action: Go to line / column
-    keys: "⌃_"
-    tags: [goto, line]
-  - action: Go to top / bottom of the file
-    keys: "⌥\\, ⌥/"
-    tags: [top, bottom]
-  - action: Page up / down
-    keys: "⌃Y, ⌃V"
-    tags: [scroll, page]
-  - action: Undo / redo
-    keys: "⌥U, ⌥E"
-    tags: [undo, redo]
   - action: Show the current cursor position
     keys: "⌃C"
     tags: [position, line number]
+  - action: Move back / forward one character
+    keys: "⌃B, ⌃F"
+    notes: Arrow keys ←/→ do the same. Works in both pico and GNU nano.
+    tags: [cursor, char, navigate]
+  - action: Move up / down one line
+    keys: "⌃P, ⌃N"
+    notes: Arrow keys ↑/↓ do the same. Works in both pico and GNU nano.
+    tags: [cursor, line, navigate]
+  - action: Jump to start / end of line
+    keys: "⌃A, ⌃E"
+    tags: [cursor, beginning, end, navigate]
+  - action: Page up / down
+    keys: "⌃Y, ⌃V"
+    tags: [scroll, page]
+  # --- GNU nano only (do NOT work in Apple's built-in pico) ---
+  - action: Move back / forward one word
+    keys: "⌥Space, ⌃Space"
+    notes: >-
+      GNU nano only. Heads-up on macOS: ⌥Space switches input source and
+      ⌃Space opens Spotlight, so they're intercepted before nano sees them.
+      Free those in System Settings → Keyboard → Keyboard Shortcuts, or install
+      GNU nano and rebind in ~/.nanorc (e.g. bind to ⌥←/⌥→).
+    tags: [cursor, word, navigate, gnu-only, macos-conflict]
+  - action: Go to line / column
+    keys: "⌃_"
+    tags: [goto, line, gnu-only]
+  - action: Go to top / bottom of the file
+    keys: "⌥\\, ⌥/"
+    tags: [top, bottom, gnu-only]
+  - action: Search and replace
+    keys: "⌃\\"
+    tags: [replace, gnu-only]
+  - action: Undo / redo
+    keys: "⌥U, ⌥E"
+    tags: [undo, redo, gnu-only]
+  - action: Jump to previous / next block (paragraph)
+    keys: "⌥(, ⌥)"
+    notes: GNU nano only; written as M-( and M-) in nano's help.
+    tags: [cursor, paragraph, block, navigate, gnu-only]
+  - action: Jump to the matching bracket
+    keys: "⌥]"
+    notes: GNU nano only. With the cursor on a bracket, jumps to its match.
+    tags: [cursor, bracket, navigate, gnu-only]
+  - action: Scroll one line without moving the cursor
+    keys: "⌥-, ⌥+"
+    notes: GNU nano only; written as M-- and M-+ (also ⌥↑ / ⌥↓).
+    tags: [scroll, navigate, gnu-only]
   - action: Notation note (Control and Meta keys)
     steps:
       - nano writes ⌃ as "^" (Control) and ⌥ as "M-" (Meta)
