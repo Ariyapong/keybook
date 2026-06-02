@@ -8,6 +8,9 @@ import { createElement } from "react";
 import { runAdd, runCheck, runPath } from "./commands";
 import { ensureDataDir, resolveDataDir } from "./config";
 import { loadEntries } from "./data/loader";
+import type { AddResult, EntryInput } from "./data/types";
+import { addEntry, listApps } from "./data/writer";
+import { AddEntryForm } from "./tui/AddEntryForm";
 import { App } from "./tui/App";
 
 const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
@@ -105,8 +108,23 @@ program
       process.exit(2);
     }
 
-    // Interactive fallback wired in Task 11.
-    console.log("(interactive add — coming in Task 11)");
+    const { entries } = loadEntries(dir);
+    const existingTags = [...new Set(entries.flatMap((e) => e.tags ?? []))].sort();
+    const prefill = { app, action, keys, command, steps, tags, notes };
+    const { waitUntilExit } = render(
+      createElement(AddEntryForm, {
+        apps: listApps(dir),
+        existingTags,
+        // prefill is available for a future enhancement; the form starts empty in v0.3
+        onSubmit: (a: string, entry: EntryInput) => addEntry(dir, a, entry),
+        onComplete: (result: AddResult) => {
+          for (const line of result.lines) console.log(line);
+        },
+        onCancel: () => process.exit(0),
+      }),
+    );
+    void prefill;
+    waitUntilExit().then(() => process.exit(0));
   });
 
 program.action(() => {
