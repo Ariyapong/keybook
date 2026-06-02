@@ -8,12 +8,13 @@ shortcuts along the way.
 ## Install
 
 ```bash
-npm install -g keybook
+npm install -g @arthony/keybook
 # or run without installing:
-npx keybook
+npx @arthony/keybook
 ```
 
-Requires Node 22+ and macOS.
+Requires Node 22+ and macOS. The package is published under the `@arthony`
+scope, but the commands it installs are still `keybook` (and the `kb` alias).
 
 ## Usage
 
