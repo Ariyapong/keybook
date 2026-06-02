@@ -65,4 +65,8 @@ describe("Footer", () => {
     expect(frame).toContain("⌃W");
     expect(frame).toContain("⌃U");
   });
+  it("hints at the add binding", () => {
+    const { lastFrame } = render(<Footer flash="" errorCount={0} resultCount={5} />);
+    expect(lastFrame() ?? "").toContain("⌃O");
+  });
 });
