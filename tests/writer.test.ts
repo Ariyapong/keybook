@@ -69,3 +69,37 @@ describe("addEntry — validation", () => {
     expect(readFileSync(join(dir, "fork.yaml"), "utf8")).toBe(before);
   });
 });
+
+describe("addEntry — preservation & edge cases", () => {
+  it("preserves comments and leaves existing entries semantically identical", () => {
+    const withComment = `# my notes\napp: Nano\nentries:\n  - action: Save\n    keys: "⌃O"\n`;
+    const dir = tmpDataDir({ "nano.yaml": withComment });
+    const before = loadEntries(dir).entries;
+    const res = addEntry(dir, "Nano", { action: "Quit", keys: "⌃X" });
+    expect(res.ok).toBe(true);
+    const text = readFileSync(join(dir, "nano.yaml"), "utf8");
+    expect(text).toContain("# my notes"); // comment survives
+    const after = loadEntries(dir).entries;
+    // existing entry unchanged as parsed
+    expect(after.find((e) => e.action === "Save")).toEqual(before.find((e) => e.action === "Save"));
+  });
+
+  it("avoids overwriting an unrelated file by suffixing the slug", () => {
+    const dir = tmpDataDir({
+      "fork.yaml": "app: ForkLift\nentries:\n  - action: X\n    keys: a\n",
+    });
+    const before = readFileSync(join(dir, "fork.yaml"), "utf8");
+    const res = addEntry(dir, "Fork", { action: "Push", keys: "⇧⌘P" });
+    expect(res.ok).toBe(true);
+    expect(res.created).toBe(true);
+    expect(res.file.endsWith("fork-2.yaml")).toBe(true);
+    expect(readFileSync(join(dir, "fork.yaml"), "utf8")).toBe(before); // untouched
+  });
+
+  it("rejects an entry that carries an app field with a friendly message", () => {
+    const dir = tmpDataDir({});
+    const res = addEntry(dir, "Fork", { action: "X", keys: "a", app: "Fork" } as never);
+    expect(res.ok).toBe(false);
+    expect(res.lines.join(" ")).toMatch(/must not have an app field/);
+  });
+});
