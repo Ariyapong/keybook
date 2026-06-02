@@ -59,4 +59,10 @@ describe("Footer", () => {
     expect(lastFrame()).toContain("2");
     expect(lastFrame()).toContain("keybook check");
   });
+  it("hints at word-back delete and clear-query bindings", () => {
+    const { lastFrame } = render(<Footer flash="" errorCount={0} resultCount={5} />);
+    const frame = lastFrame() ?? "";
+    expect(frame).toContain("⌃W");
+    expect(frame).toContain("⌃U");
+  });
 });
