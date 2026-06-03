@@ -64,3 +64,115 @@ entries:
   - action: Indent / outdent the line or selection
     keys: ">>, <<"
     tags: [indent]
+  - action: Move to end of word / end of WORD
+    keys: "e, E"
+    notes: e treats punctuation as a word boundary; E spans punctuation (whitespace-separated WORD).
+    tags: [word, motion, end]
+  - action: Move forward / back by WORD (whitespace-separated)
+    keys: "W, B"
+    notes: Capital variants of w / b — jump past punctuation in one step.
+    tags: [word, motion, big]
+  - action: Find a character on the current line
+    keys: "f, F, t, T"
+    notes: >-
+      After pressing, type the target character. f / F land ON it (forward / back);
+      t / T land just before it. ; repeats the same find, , reverses direction.
+      Searches like "fa" (find 'a') are great when paired with d / c (e.g. dt, deletes to before next ',').
+    tags: [find, char, line, motion, tip]
+  - action: Search forward / back for the word under the cursor
+    keys: "*, #"
+    notes: Use n / N afterwards to step through matches. Great for tracing usages.
+    tags: [search, word, find, navigate, tip]
+  - action: Jump to top / middle / bottom of the screen
+    keys: "H, M, L"
+    notes: Cursor only — doesn't scroll the viewport. Combine with zz to recenter after.
+    tags: [screen, viewport, motion]
+  - action: Scroll half / full page down / up
+    keys: "⌃D, ⌃U, ⌃F, ⌃B"
+    notes: Half-page (⌃D / ⌃U) is usually less jarring than full-page (⌃F / ⌃B).
+    tags: [scroll, page, motion]
+  - action: Recenter / top / bottom the current line in the viewport
+    keys: "zz, zt, zb"
+    notes: zz centers the current line, zt puts it at the top of the window, zb at the bottom.
+    tags: [scroll, center, recenter, viewport]
+  - action: Jump back / forward in the cursor history
+    keys: "⌃O, ⌃I"
+    notes: >-
+      Vim records every jump >1 line. ⌃O retraces backwards through your trail, ⌃I goes forward.
+      Indispensable for diving into code and bouncing back where you were.
+    tags: [jump, history, navigate, tip, productivity]
+  - action: Jump to local declaration / global definition under cursor
+    keys: "gd, gD"
+    notes: gd searches the current function/scope for the identifier under the cursor; gD searches the whole file.
+    tags: [definition, declaration, goto, tip]
+  - action: Open a new line below / above the current
+    keys: "o, O"
+    notes: Both enter Insert mode immediately on the new line.
+    tags: [insert, new line, edit]
+  - action: Insert at start / append at end of line
+    keys: "I, A"
+    notes: I jumps to the first non-blank character and enters Insert; A appends after the last character.
+    tags: [insert, append, line, edit]
+  - action: Change / delete to end of line
+    keys: "C, D"
+    notes: C is shorthand for c$ (change to end of line); D is d$ (delete to end). Quick rewrites.
+    tags: [change, delete, line, edit]
+  - action: Replace a single character / enter Replace mode
+    keys: "r, R"
+    notes: After r, type the replacement char (one key, doesn't enter Insert). R overwrites characters as you type until ⎋.
+    tags: [replace, overwrite, edit]
+  - action: Join the next line onto the current one
+    keys: "J"
+    notes: Adds a space between them. gJ joins without inserting a space.
+    tags: [join, line, edit]
+  - action: Toggle case of character / inner word
+    keys: "~, g~iw"
+    notes: ~ flips one char's case; g~iw flips the word under the cursor. gu / gU make a motion lower / upper-case.
+    tags: [case, toggle, edit]
+  - action: Split the window horizontally / vertically
+    keys: ":split⏎, :vsplit⏎"
+    notes: Short forms :sp and :vsp. After splitting, :e <file> opens a file in the focused split.
+    tags: [split, window, layout]
+  - action: Move focus between splits
+    keys: "⌃Wh, ⌃Wj, ⌃Wk, ⌃Wl"
+    notes: ⌃W followed by an hjkl direction. ⌃W⌃W cycles forward through splits.
+    tags: [split, window, navigate]
+  - action: List and switch buffers
+    keys: ":ls⏎, :b <n>⏎, :bn, :bp"
+    notes: :ls lists all open buffers with their numbers. :bn / :bp cycle next / previous.
+    tags: [buffer, switch, list, tip]
+  - action: Close the current buffer (keep the split layout)
+    keys: ":bd⏎"
+    notes: Drops the buffer but keeps the window. Add ! to discard unsaved changes.
+    tags: [buffer, close]
+  - action: Set a mark / jump back to it
+    keys: "m, ', `"
+    notes: >-
+      m{letter} sets a mark at the cursor; '{letter} jumps to its line, `{letter} (backtick) to the exact column.
+      Lowercase marks a–z are file-local; capital A–Z are global across files.
+    tags: [mark, jump, bookmark, "ma", "'a", tip]
+  - action: Record / play back a macro
+    keys: "q...q, @, @@"
+    notes: >-
+      q{letter} starts recording into a register; q stops. @{letter} replays. @@ re-runs the last macro.
+      Workflow — record one edit on the first item, then @a (or whatever register) on each subsequent occurrence.
+    tags: [macro, record, replay, automation, tip, productivity]
+  - action: Repeat the last ex (:) command
+    keys: "@:"
+    notes: "After running any :command once, @: replays it; @@ then keeps replaying."
+    tags: [repeat, command, tip]
+  - action: Toggle relative / absolute line numbers
+    keys: ":set rnu⏎, :set nornu⏎, :set nu⏎"
+    notes: >-
+      Relative numbers (rnu) show each line's distance from the cursor — "5j" or "12dd" become trivial to count.
+      Combine `set nu` + `set rnu` for a hybrid view. Put both in your vimrc to make it permanent.
+    tags: [option, line numbers, relative, productivity, tip]
+  - action: Insert the same text on every line of a column selection
+    steps:
+      - "⌃V to enter Visual-Block mode"
+      - Use j / k to extend the block over the lines you want
+      - Press I (capital) to insert at the LEFT edge of the block
+      - Type the text you want repeated on every line
+      - "Press ⎋ — wait a moment — the text duplicates onto every selected line"
+    notes: A (capital) does the same at the RIGHT edge. Game-changer for adding comment markers, trailing commas, or any column prefix/suffix.
+    tags: [visual block, multi line, insert, comment, prefix, tip, productivity]
