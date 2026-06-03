@@ -39,39 +39,84 @@ Show
 # Demo 1: fuzzy search for a shortcut across apps
 Type "keybook"
 Enter
-Sleep 1500ms
+Sleep 1300ms
 
 Type "new tab"
-Sleep 2000ms
+Sleep 1800ms
 
 Down
-Sleep 350ms
+Sleep 300ms
 Down
-Sleep 350ms
+Sleep 300ms
 Down
-Sleep 600ms
+Sleep 500ms
 
 Enter
-Sleep 1200ms
+Sleep 1100ms
 
 Escape
 Sleep 400ms
 
-# Ink leaves residual render in scrollback on exit; clear before demo 2.
+# Ink leaves residual render in scrollback on exit; clear before the next demo.
 Type "clear"
 Enter
-Sleep 300ms
+Sleep 250ms
 
 # Demo 2: fuzzy search for a recipe (multi-step entry)
 Type "kb"
 Enter
-Sleep 1200ms
+Sleep 1100ms
 
 Type "terminal here"
-Sleep 2200ms
+Sleep 1800ms
 
 Enter
-Sleep 1400ms
+Sleep 1100ms
 
 Escape
+Sleep 400ms
+
+Type "clear"
+Enter
+Sleep 250ms
+
+# Demo 3: add a new entry via ⌃O — the v0.3 marquee feature
+Type "kb"
+Enter
+Sleep 1100ms
+
+Ctrl+O
+Sleep 700ms
+
+# App field — navigate Claude → Finder → Fork
+Down
+Sleep 350ms
+Down
+Sleep 500ms
+
+# Confirm Fork, advance to Type field (default "shortcut" is fine)
+Enter
+Sleep 400ms
+Ctrl+N
+Sleep 500ms
+
+# Action field
+Type "Force push"
 Sleep 800ms
+
+# Keys field — word-form input gets normalized to glyphs ("⇧⌘K")
+Ctrl+N
+Sleep 400ms
+Type "shift cmd k"
+Sleep 1000ms
+
+# Review screen — pause for viewer to read the rendered entry
+Enter
+Sleep 1700ms
+
+# Confirm save — returns to search with "✓ added" flash
+Enter
+Sleep 1600ms
+
+Escape
+Sleep 600ms
