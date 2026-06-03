@@ -5,9 +5,12 @@ import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { render } from "ink";
 import { createElement } from "react";
-import { runCheck, runPath } from "./commands";
+import { runAdd, runCheck, runPath } from "./commands";
 import { ensureDataDir, resolveDataDir } from "./config";
 import { loadEntries } from "./data/loader";
+import type { AddResult, EntryInput } from "./data/types";
+import { addEntry, listApps, resolveTargetFile } from "./data/writer";
+import { AddEntryForm } from "./tui/AddEntryForm";
 import { App } from "./tui/App";
 
 const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
@@ -48,13 +51,93 @@ program
     process.exit(result.ok ? 0 : 1);
   });
 
+program
+  .command("add")
+  .description("Add a new entry (interactive, or non-interactive with flags)")
+  .option("--app <name>", "target app")
+  .option("--action <text>", "what the entry does")
+  .option("--keys <combo>", "key combo (glyphs or words, e.g. 'shift cmd p')")
+  .option("--command <cmd>", "terminal command")
+  .option("--step <text...>", "recipe step (repeatable)")
+  .option("--tags <list>", "comma-separated tags")
+  .option("--notes <text>", "notes")
+  .action((opts: Record<string, string | string[] | undefined>) => {
+    const { dir } = resolveDataDir();
+    try {
+      ensureDataDir(dir);
+    } catch (e) {
+      console.error(`Error: could not prepare data directory ${dir}: ${(e as Error).message}`);
+      process.exit(1);
+    }
+
+    const app = opts.app as string | undefined;
+    const action = opts.action as string | undefined;
+    const keys = opts.keys as string | undefined;
+    const command = opts.command as string | undefined;
+    const steps = (opts.step as string[] | undefined) ?? undefined;
+    const tags =
+      typeof opts.tags === "string"
+        ? opts.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : undefined;
+    const notes = opts.notes as string | undefined;
+
+    const haveBody = Boolean(keys || command || steps?.length);
+    const complete = Boolean(app && action && haveBody);
+
+    if (complete) {
+      const result = runAdd(dir, {
+        app: app as string,
+        action: action as string,
+        keys,
+        command,
+        steps,
+        tags,
+        notes,
+      });
+      for (const line of result.lines) (result.ok ? console.log : console.error)(line);
+      process.exit(result.ok ? 0 : 1);
+    }
+
+    if (!process.stdout.isTTY) {
+      const missing = [
+        !app && "--app",
+        !action && "--action",
+        !haveBody && "--keys/--command/--step",
+      ]
+        .filter(Boolean)
+        .join(", ");
+      console.error(`Error: missing required field(s): ${missing}`);
+      process.exit(2);
+    }
+
+    const { entries } = loadEntries(dir);
+    const existingTags = [...new Set(entries.flatMap((e) => e.tags ?? []))].sort();
+    const instance = render(
+      createElement(AddEntryForm, {
+        apps: listApps(dir),
+        existingTags,
+        resolveTarget: (a: string) => resolveTargetFile(dir, a),
+        onSubmit: (a: string, entry: EntryInput) => addEntry(dir, a, entry),
+        onComplete: (result: AddResult) => {
+          if (result.lines[0]) console.log(result.lines[0]);
+          instance.unmount();
+        },
+        onCancel: () => instance.unmount(),
+      }),
+    );
+    instance.waitUntilExit().then(() => process.exit(0));
+  });
+
 program.action(() => {
   const { dir } = resolveDataDir();
   const init = ensureDataDir(dir);
   if (init.initialized) console.log(`Initialized ${dir} from seed (${init.fileCount} files).`);
   const { entries, errors } = loadEntries(dir);
   for (const e of errors) console.error(`⚠ ${e.file}: ${e.message}`);
-  render(createElement(App, { entries, errorCount: errors.length }));
+  render(createElement(App, { entries, errorCount: errors.length, dataDir: dir }));
 });
 
 program.parse();

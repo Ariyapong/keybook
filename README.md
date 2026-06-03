@@ -33,6 +33,7 @@ key"*, or use `⌃W` (works in any terminal).
 
 ```bash
 keybook          # launch the TUI (alias: kb)
+keybook add      # add a new entry (interactive form)
 keybook path     # print the data directory
 keybook edit     # open the data directory in $EDITOR
 keybook check    # validate your data files
@@ -40,6 +41,10 @@ keybook check    # validate your data files
 
 In the TUI: type to fuzzy-search, ↑/↓ to move, ⏎ to copy the shortcut (or a
 recipe's command) to the clipboard, ⎋ to quit.
+
+Press `⌃O` in the TUI to add an entry without leaving the search screen. Or
+script it: `keybook add --app Fork --action 'Push' --keys 'shift cmd p' --tags push`
+(`--keys` accepts glyphs or words; recipes use repeatable `--step`).
 
 ## Your data
 

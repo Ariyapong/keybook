@@ -11,7 +11,7 @@ export function Footer({
 }) {
   return (
     <Box marginTop={1} justifyContent="space-between">
-      <Text color="gray">↑↓ move ⏎ copy ⎋ quit ⌥⌫/⌃W del word ⌃U clear ({resultCount})</Text>
+      <Text color="gray">↑↓ move ⏎ copy ⌃O add ⎋ quit ⌥⌫/⌃W del ⌃U clear ({resultCount})</Text>
       {flash ? (
         <Text color="green">{flash}</Text>
       ) : errorCount > 0 ? (

@@ -1,7 +1,9 @@
 import { render } from "ink-testing-library";
 import { describe, expect, it, vi } from "vitest";
+import { loadEntries } from "../src/data/loader";
 import type { Entry } from "../src/data/types";
 import { App } from "../src/tui/App";
+import { tmpDataDir } from "./_helpers";
 
 const entries: Entry[] = [
   { app: "Finder", action: "Open a new tab", keys: "⌘T", tags: ["new tab"] },
@@ -113,5 +115,62 @@ describe("App", () => {
     await tick();
     expect(lastFrame()).toContain("search: clea");
     expect(lastFrame()).not.toMatch(/search: clear[^\w]/);
+  });
+
+  it("opens the add form on ⌃O and search input goes inert", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x0f"); // ⌃O
+    await tick();
+    expect(lastFrame()).toContain("keybook add");
+    stdin.write("zzz"); // would be a search query if search were active
+    await tick();
+    expect(lastFrame()).not.toContain("search: zzz");
+  });
+
+  it("returns to search on esc without writing", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x0f"); // ⌃O
+    await tick();
+    stdin.write("\x1b"); // esc
+    await tick();
+    expect(lastFrame()).toContain("search:");
+  });
+
+  it("adds an entry to an existing app via ⌃O, reloads, and flashes success", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x0f"); // ⌃O -> add form (App field, "Fork" highlighted at index 0)
+    await tick();
+    stdin.write("\r"); // ⏎ -> Type
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Action
+    await tick();
+    stdin.write("Force push"); // action
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Keys
+    await tick();
+    stdin.write("cmd shift k"); // keys
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm -> write + reload + flash
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Force push"); // reloaded results contain the new action
+    expect(out).toContain("✓"); // success flash
   });
 });

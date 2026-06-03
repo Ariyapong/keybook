@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { runCheck, runPath } from "../src/commands";
+import { runAdd, runCheck, runPath } from "../src/commands";
+import { loadEntries } from "../src/data/loader";
 import { tmpDataDir } from "./_helpers";
 
 describe("runPath", () => {
@@ -23,5 +24,21 @@ describe("runCheck", () => {
     const r = runCheck(dir);
     expect(r.ok).toBe(false);
     expect(r.lines[0]).toContain("entry 0");
+  });
+});
+
+describe("runAdd", () => {
+  it("normalizes keys and writes a valid entry", () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const res = runAdd(dir, { app: "Fork", action: "Push", keys: "shift cmd p" });
+    expect(res.ok).toBe(true);
+    expect(loadEntries(dir).entries.find((e) => e.action === "Push")?.keys).toBe("⇧⌘P");
+  });
+  it("fails when no keys/steps/command are given", () => {
+    const dir = tmpDataDir({});
+    const res = runAdd(dir, { app: "Fork", action: "Nothing" });
+    expect(res.ok).toBe(false);
   });
 });
