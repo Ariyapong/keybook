@@ -1,0 +1,272 @@
+# Curated git CLI essentials — branches, commits, history rewriting, recovery.
+# Almost every entry has a `command` (Enter copies it to the clipboard); recipes
+# use `steps` and place the canonical command in `command` so paste-and-tweak
+# still works.
+app: Git
+entries:
+  # ---- Branches ----
+  - action: Create and switch to a new branch
+    command: git switch -c <name>
+    notes: Legacy synonym is `git checkout -b <name>`.
+    tags: [branch, create, checkout, new]
+
+  - action: Switch to an existing branch
+    command: git switch <name>
+    notes: Legacy synonym is `git checkout <name>`.
+    tags: [branch, checkout, switch]
+
+  - action: Delete a local branch
+    command: git branch -d <name>
+    notes: Use -D (capital) to force-delete a branch with unmerged commits.
+    tags: [branch, delete, remove]
+
+  - action: Delete a remote branch
+    command: git push origin --delete <name>
+    tags: [branch, delete, remote, push]
+
+  - action: Rename the current branch
+    command: git branch -m <new-name>
+    tags: [branch, rename, move]
+
+  # ---- Commits & undo ----
+  - action: Amend the last commit (edit message and/or fold in staged changes)
+    command: git commit --amend
+    notes: Rewrites the most recent commit. Force-push needed if already pushed.
+    tags: [amend, commit, edit, message]
+
+  - action: Amend the last commit without changing its message
+    command: git commit --amend --no-edit
+    notes: Quietly folds new staged changes into the most recent commit.
+    tags: [amend, fixup, no-edit, commit]
+
+  - action: Unstage a file but keep the working-copy change
+    command: git restore --staged <file>
+    notes: Legacy synonym is `git reset HEAD <file>`.
+    tags: [unstage, reset, restore]
+
+  - action: Discard local changes to a file (destructive)
+    command: git restore <file>
+    notes: The file's uncommitted edits are gone. Legacy `git checkout -- <file>`.
+    tags: [discard, undo, restore, dangerous]
+
+  - action: Undo the last commit but keep its changes staged
+    command: git reset --soft HEAD~1
+    tags: [undo, reset, soft, uncommit]
+
+  - action: Hard-reset to a specific commit (destructive)
+    command: git reset --hard <ref>
+    notes: >-
+      Wipes working tree AND index. If you regret it, find the pre-reset HEAD in
+      `git reflog` and `git reset --hard <sha>` to recover (within 90 days).
+    tags: [reset, hard, dangerous, undo]
+
+  - action: Set the per-repo author email (useful for work/personal split)
+    command: git config user.email "<address>"
+    notes: Drop --global to scope to the current repo only. Pair with `git config user.name`.
+    tags: [config, email, identity, author]
+
+  # ---- Stash ----
+  - action: Stash all changes including untracked files
+    command: git stash -u
+    notes: -u (--include-untracked) saves new files too; without it, untracked stays put.
+    tags: [stash, save, wip, untracked]
+
+  - action: Stash with a message
+    command: git stash push -m "<message>"
+    tags: [stash, message, save]
+
+  - action: List all stashes
+    command: git stash list
+    tags: [stash, list]
+
+  - action: Apply and drop the most recent stash
+    command: git stash pop
+    notes: Use `git stash apply` to keep the stash on the list after applying.
+    tags: [stash, pop, apply, restore]
+
+  # ---- Log & inspect ----
+  - action: Pretty one-line log with a branch graph
+    command: git log --oneline --graph --all --decorate
+    notes: Add `--first-parent` to flatten merge-heavy branches.
+    tags: [log, history, graph, decorate]
+
+  - action: Show what changed in the last commit
+    command: git show
+    notes: Append a sha or ref (e.g. `git show HEAD~2`) to inspect any commit.
+    tags: [show, diff, last, commit]
+
+  - action: Diff staged vs unstaged changes
+    steps:
+      - "`git diff` shows unstaged changes (working tree vs index)"
+      - "`git diff --staged` shows staged changes (index vs HEAD); --cached is the same"
+    notes: Add `-- <path>` to either to scope to a file.
+    tags: [diff, staged, cached, unstaged]
+
+  - action: Blame a file showing commit and author per line
+    command: git blame <file>
+    notes: Add `-L 10,20` to limit to a line range; `-w` ignores whitespace-only changes.
+    tags: [blame, who, author, line]
+
+  - action: Find which commit introduced a string (pickaxe search)
+    command: git log -S "<text>" --source --all
+    notes: -S finds commits that change the literal-string count; use -G for a regex.
+    tags: [search, pickaxe, history, find, who]
+
+  # ---- Remote ----
+  - action: Force-push safely (refuses to overwrite remote work you haven't seen)
+    command: git push --force-with-lease
+    notes: >-
+      Prefer this over plain --force. It errors if the remote moved since your
+      last fetch, preventing accidental overwrites of teammates' commits.
+    tags: [push, force, force-with-lease, safe]
+
+  - action: Fetch all remotes and prune deleted upstream branches
+    command: git fetch --all --prune
+    tags: [fetch, prune, cleanup, remote]
+
+  - action: Pull with rebase (replay your local commits on top of upstream)
+    command: git pull --rebase
+    notes: Set `git config --global pull.rebase true` to make this the default.
+    tags: [pull, rebase, update]
+
+  - action: Push the current branch and set its upstream
+    command: git push -u origin HEAD
+    notes: After this, plain `git push` / `git pull` work without arguments on this branch.
+    tags: [push, upstream, set-upstream]
+
+  # ---- Rebase, merge, conflicts ----
+  - action: Interactive rebase the last N commits
+    command: git rebase -i HEAD~<N>
+    notes: >-
+      In the editor: change `pick` to `reword` (edit message), `squash` (fold into
+      previous, keep both messages), `fixup` (squash and drop message), `drop`
+      (remove the commit), or reorder lines. Resume with `git rebase --continue`.
+    tags: [rebase, interactive, squash, reword, fixup]
+
+  - action: Resolve a merge conflict
+    command: git merge --continue
+    steps:
+      - "`git status` lists the conflicting files (marked \"both modified\")"
+      - Open each file; replace the `<<<<<<<` / `=======` / `>>>>>>>` blocks with the desired content
+      - "`git add <files>` to mark each resolved file"
+      - "`git commit` (or `git merge --continue`) to finish the merge"
+    notes: >-
+      Bail out with `git merge --abort` (restores pre-merge state). During a
+      rebase, use `git rebase --continue` / `--abort` instead.
+    tags: [merge, conflict, resolve, fix]
+
+  - action: Take "ours" or "theirs" wholesale during a conflict
+    steps:
+      - "`git checkout --ours <file>` keeps the version from your current branch"
+      - "`git checkout --theirs <file>` takes the version from the other branch"
+      - "`git add <file>` then `git commit` (or `--continue`)"
+    notes: >-
+      During a rebase, ours/theirs are FLIPPED — rebase replays your commits onto
+      theirs, so "ours" refers to the branch you're rebasing onto.
+    tags: [conflict, ours, theirs, merge, rebase]
+
+  - action: Abort a merge in progress
+    command: git merge --abort
+    notes: Use `git rebase --abort` if you're mid-rebase instead.
+    tags: [merge, abort, cancel]
+
+  - action: Cherry-pick a commit onto the current branch
+    command: git cherry-pick <sha>
+    notes: Use a range like `<a>^..<b>` to pick a series in order.
+    tags: [cherry-pick, copy, apply]
+
+  - action: Safely undo a commit by adding an inverse commit
+    command: git revert <sha>
+    notes: Non-destructive — creates a new commit that undoes the target. Safe on shared branches.
+    tags: [revert, undo, safe, inverse]
+
+  # ---- History rewriting ----
+  - action: Remove a co-author trailer from every commit (cleanup after Claude etc.)
+    command: |
+      git filter-repo --message-callback '
+        import re
+        return re.sub(rb"^Co-authored-by:.*\n?", b"", message, flags=re.MULTILINE)
+      '
+    steps:
+      - "Install once: `brew install git-filter-repo`"
+      - Ensure the working tree is clean (no staged or unstaged changes)
+      - Run the filter-repo command (Enter copies it from the preview)
+      - "Re-add the remote (filter-repo strips it for safety): `git remote add origin <url>`"
+      - "Force-push: `git push --force-with-lease --all && git push --force-with-lease --tags`"
+    notes: >-
+      Destructive — every commit SHA changes. Coordinate with anyone who has
+      cloned the repo so they re-clone or hard-reset their local copy.
+    tags: [filter-repo, rewrite, co-author, cleanup, claude, history]
+
+  - action: Squash the last N commits into one
+    command: git rebase -i HEAD~<N>
+    steps:
+      - "`git rebase -i HEAD~<N>`"
+      - In the editor, change `pick` to `squash` on every line EXCEPT the first
+      - Save and quit; the next editor lets you craft the combined commit message
+    notes: Use `fixup` instead of `squash` to keep only the first commit's message.
+    tags: [squash, rebase, combine, history]
+
+  - action: Edit the message of an old commit
+    steps:
+      - "`git rebase -i HEAD~<N>` where N is far enough back to include the target"
+      - "Change `pick` to `reword` on the target line; save and quit"
+      - Edit the message in the next editor; save and quit
+      - "`git rebase --continue` if anything else needs attention"
+    command: git rebase -i HEAD~<N>
+    notes: SHAs from that commit onward change; force-push needed if already pushed.
+    tags: [rebase, reword, message, history]
+
+  - action: Drop a commit from history
+    steps:
+      - "`git rebase -i HEAD~<N>`"
+      - Delete the line (or change `pick` to `drop`) for the commit to remove
+      - Save and quit; resolve any conflicts with `--continue`
+    command: git rebase -i HEAD~<N>
+    notes: Prefer `git revert <sha>` if the commit is already shared with others.
+    tags: [rebase, drop, remove, history]
+
+  # ---- Recovery & tags ----
+  - action: View the reflog to find lost commits
+    command: git reflog
+    notes: >-
+      Every HEAD-changing operation leaves an entry. Recover with `git reset
+      --hard <sha>` or `git checkout <sha>`. Entries expire after 90 days by default.
+    tags: [reflog, recover, lost, history, undo]
+
+  - action: Recover after a bad reset or rebase
+    steps:
+      - "`git reflog` to find the entry just BEFORE the bad operation"
+      - "Note the sha or HEAD@{N} reference"
+      - "`git reset --hard HEAD@{N}` (or `git reset --hard <sha>`)"
+    command: git reflog
+    notes: Reflog entries expire after 90 days by default — act soon.
+    tags: [reflog, recover, undo, mistake, rescue]
+
+  - action: Find the commit that broke things (git bisect)
+    steps:
+      - "`git bisect start`"
+      - "`git bisect bad` to mark HEAD as bad"
+      - "`git bisect good <ref>` to mark a known-good past commit or tag"
+      - Test at each step; mark with `git bisect good` or `git bisect bad`
+      - "`git bisect reset` to return to where you started"
+    command: git bisect start
+    notes: Automate with `git bisect run <script>` for hands-off bisection.
+    tags: [bisect, regression, find, debug, broke]
+
+  - action: Create an annotated tag
+    command: git tag -a v<version> -m "<message>"
+    notes: Annotated tags carry author + date + message; prefer them over lightweight `git tag <name>`.
+    tags: [tag, release, annotated, version]
+
+  - action: Push a specific tag to the remote
+    command: git push origin v<version>
+    notes: Use `git push --tags` to push all local tags at once.
+    tags: [tag, push, release, remote]
+
+  - action: Delete a tag locally and on the remote
+    steps:
+      - "`git tag -d v<version>` removes it locally"
+      - "`git push origin --delete v<version>` removes it from the remote"
+    command: git push origin --delete v<version>
+    tags: [tag, delete, remove, remote]
