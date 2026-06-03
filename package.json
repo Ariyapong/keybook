@@ -1,6 +1,6 @@
 {
   "name": "@arthony/keybook",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publishConfig": { "access": "public" },
   "description": "A macOS TUI for searching keyboard shortcuts and recipes of your favorite apps",
   "keywords": [
