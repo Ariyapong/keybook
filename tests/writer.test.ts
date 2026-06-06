@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadEntries } from "../src/data/loader";
-import { addEntry, deleteEntry, editEntry, listApps, resolveTargetFile } from "../src/data/writer";
+import { addEntry, deleteEntry, listApps, resolveTargetFile } from "../src/data/writer";
 import { tmpDataDir } from "./_helpers";
 
 const FORK = `app: Fork
