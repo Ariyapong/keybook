@@ -35,7 +35,7 @@ export function AddEntryForm({
 }: AddEntryFormProps) {
   // Start synced to the highlighted choice (appIndex 0) so the draft is in sync
   // even if the user advances past field 0 without pressing ↑/↓.
-  const { draft, update, setDraft } = useAddForm(apps[0] ?? "");
+  const { draft, update, setDraft } = useAddForm({ app: apps[0] ?? "" });
   const [focused, setFocused] = useState(0);
   const [appIndex, setAppIndex] = useState(0);
   const [screen, setScreen] = useState<"form" | "review">("form");
