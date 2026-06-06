@@ -184,4 +184,32 @@ describe("AddEntryForm", () => {
       expect.objectContaining({ action: "Push (force)", keys: "⇧⌘P" }),
     );
   });
+
+  it("advances from the Type field to Action on ⏎ (does not jump to review)", async () => {
+    const { stdin, lastFrame } = setup();
+    await tick();
+    stdin.write("\r"); // App -> Type (App field advances on ⏎)
+    await tick();
+    stdin.write("\r"); // Type -> Action (must advance, NOT open review)
+    await tick();
+    stdin.write("Push the branch"); // lands in the Action field
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Push the branch"); // we reached and typed in Action
+    expect(out).not.toContain("Action is required"); // no premature validation
+  });
+
+  it("keeps the ⌃N navigation hint visible alongside a validation error", async () => {
+    const { stdin, lastFrame } = setup();
+    await tick();
+    stdin.write("\r"); // App -> Type
+    await tick();
+    stdin.write("\r"); // Type -> Action
+    await tick();
+    stdin.write("\r"); // Action empty -> review attempt -> "Action is required"
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Action is required"); // the error is shown
+    expect(out).toContain("⌃N"); // and the navigation hint is still visible
+  });
 });
