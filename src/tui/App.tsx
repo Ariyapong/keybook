@@ -2,8 +2,8 @@ import { Box, useApp, useInput, useStdout } from "ink";
 import { useCallback, useMemo, useState } from "react";
 import { copyToClipboard } from "../clipboard";
 import { loadEntries } from "../data/loader";
-import type { AddResult, Entry, EntryInput } from "../data/types";
-import { addEntry, listApps, resolveTargetFile } from "../data/writer";
+import type { AddResult, Entry, EntryInput, LoadedEntry } from "../data/types";
+import { addEntry, editEntry, listApps, resolveTargetFile } from "../data/writer";
 import { search } from "../search";
 import { AddEntryForm } from "./AddEntryForm";
 import { Footer } from "./Footer";
@@ -12,9 +12,10 @@ import { ResultList } from "./ResultList";
 import { SearchInput } from "./SearchInput";
 import { deleteWordBack } from "./input";
 import { columnWidths, visibleListHeight } from "./layout";
+import { entryToDraft } from "./useAddForm";
 
 export interface AppProps {
-  entries: Entry[];
+  entries: LoadedEntry[];
   errorCount?: number;
   dataDir?: string;
   onCopy?: (text: string) => boolean;
@@ -29,7 +30,8 @@ export function App({
   const { exit } = useApp();
   const { stdout } = useStdout();
   const [entries, setEntries] = useState(initial);
-  const [mode, setMode] = useState<"search" | "add">("search");
+  const [mode, setMode] = useState<"search" | "add" | "edit">("search");
+  const [editTarget, setEditTarget] = useState<LoadedEntry | null>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [flash, setFlash] = useState("");
@@ -54,6 +56,11 @@ export function App({
       }
       if (dataDir && key.ctrl && input === "o") {
         setMode("add");
+        return;
+      }
+      if (dataDir && current && key.ctrl && input === "e") {
+        setEditTarget(current);
+        setMode("edit");
         return;
       }
       if (key.downArrow || (key.ctrl && input === "n")) {
@@ -94,8 +101,9 @@ export function App({
     { isActive: mode === "search" },
   );
 
+  const existingTags = [...new Set(entries.flatMap((e) => e.tags ?? []))].sort();
+
   if (mode === "add" && dataDir) {
-    const existingTags = [...new Set(entries.flatMap((e) => e.tags ?? []))].sort();
     return (
       <AddEntryForm
         apps={listApps(dataDir)}
@@ -111,6 +119,35 @@ export function App({
           setMode("search");
         }}
         onCancel={() => setMode("search")}
+      />
+    );
+  }
+
+  if (mode === "edit" && dataDir && editTarget) {
+    return (
+      <AddEntryForm
+        apps={listApps(dataDir)}
+        existingTags={existingTags}
+        lockedApp={editTarget.app}
+        initial={entryToDraft(editTarget.app, editTarget)}
+        title={`Edit entry — ${editTarget.app}`}
+        resolveTarget={(a: string) => resolveTargetFile(dataDir, a)}
+        onSubmit={(_app: string, entry: EntryInput): AddResult =>
+          editEntry(dataDir, editTarget.file, editTarget.index, entry, editTarget.action)
+        }
+        onComplete={(result: AddResult) => {
+          if (result.ok) {
+            reload();
+            setSelected(0);
+            setFlash(result.lines[0] ?? "✓ updated");
+          }
+          setMode("search");
+          setEditTarget(null);
+        }}
+        onCancel={() => {
+          setMode("search");
+          setEditTarget(null);
+        }}
       />
     );
   }
