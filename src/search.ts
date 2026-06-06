@@ -8,13 +8,15 @@ function haystack(e: Entry): string {
 }
 
 /** Pure fuzzy search. Empty query → all entries in stable browse order. */
-export function search(entries: Entry[], query: string): Entry[] {
+export function search<T extends Entry>(entries: T[], query: string): T[] {
   const q = query.trim();
   if (!q) {
     return [...entries].sort(
       (a, b) => a.app.localeCompare(b.app) || a.action.localeCompare(b.action),
     );
   }
-  const fzf = new Fzf(entries, { selector: haystack, match: extendedMatch });
-  return fzf.find(q).map((r) => r.item);
+  // Pin Fzf's element type to Entry (haystack reads only Entry fields); the
+  // matched items are the original T objects, so restoring T on return is sound.
+  const fzf = new Fzf(entries as Entry[], { selector: haystack, match: extendedMatch });
+  return fzf.find(q).map((r) => r.item as T);
 }

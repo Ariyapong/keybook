@@ -3,6 +3,7 @@ import {
   type Draft,
   draftToEntryInput,
   emptyDraft,
+  entryToDraft,
   parseTags,
   resolvedApp,
   validateDraft,
@@ -58,5 +59,24 @@ describe("draftToEntryInput", () => {
       tags: "x, y",
     };
     expect(draftToEntryInput(d)).toEqual({ action: "X", steps: ["a", "b"], tags: ["x", "y"] });
+  });
+});
+
+describe("entryToDraft", () => {
+  it("round-trips a shortcut through draftToEntryInput", () => {
+    const e = { action: "Push", keys: "⇧⌘P", tags: ["push"] };
+    expect(draftToEntryInput(entryToDraft("Fork", e))).toEqual(e);
+  });
+  it("round-trips a command entry", () => {
+    const e = { action: "Open", command: "open ." };
+    expect(draftToEntryInput(entryToDraft("Terminal", e))).toEqual(e);
+  });
+  it("round-trips a recipe entry", () => {
+    const e = { action: "Steps", steps: ["a", "b"], notes: "careful" };
+    expect(draftToEntryInput(entryToDraft("X", e))).toEqual(e);
+  });
+  it("preserves an entry that has BOTH keys and command", () => {
+    const e = { action: "Both", keys: "⌘K", command: "clear" };
+    expect(draftToEntryInput(entryToDraft("X", e))).toEqual(e);
   });
 });

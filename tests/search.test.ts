@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Entry } from "../src/data/types";
+import type { Entry, LoadedEntry } from "../src/data/types";
 import { search } from "../src/search";
 
 const entries: Entry[] = [
@@ -22,5 +22,17 @@ describe("search", () => {
   it("matches via tag synonyms", () => {
     const r = search(entries, "new tab");
     expect(r[0]?.action).toMatch(/tab/i);
+  });
+
+  it("preserves LoadedEntry provenance on results", () => {
+    const e: LoadedEntry = {
+      app: "X",
+      action: "Open settings",
+      keys: "⌘,",
+      file: "x.yaml",
+      index: 4,
+    };
+    const [r] = search([e], "settings");
+    expect(r).toMatchObject({ file: "x.yaml", index: 4 });
   });
 });

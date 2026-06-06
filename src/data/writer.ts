@@ -7,7 +7,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { basename, join } from "node:path";
-import { Document, parseDocument } from "yaml";
+import { Document, isMap, isSeq, parseDocument } from "yaml";
 import { loadEntries } from "./loader";
 import { entrySchema } from "./schema";
 import type { AddResult, EntryInput } from "./types";
@@ -158,4 +158,108 @@ export function addEntry(dir: string, app: string, entry: EntryInput): AddResult
     created,
     lines: [`✓ ${created ? "created" : "added to"} ${basename(file)}`],
   };
+}
+
+export function deleteEntry(
+  dir: string,
+  file: string,
+  index: number,
+  expectedAction: string,
+): AddResult {
+  const path = join(dir, file);
+  let original: string;
+  try {
+    original = readFileSync(path, "utf8");
+  } catch (e) {
+    return err(path, [(e as Error).message]);
+  }
+
+  const doc = parseDocument(original);
+  const node = doc.getIn(["entries", index]);
+  const action = isMap(node) ? String(node.get("action") ?? "").trim() : undefined;
+  if (action !== expectedAction.trim()) {
+    return err(path, ["✗ entry changed on disk — reload and retry"]);
+  }
+
+  doc.deleteIn(["entries", index]);
+  const seq = doc.getIn(["entries"]);
+  const emptied = isSeq(seq) ? seq.items.length === 0 : true;
+
+  try {
+    if (emptied) unlinkSync(path);
+    else writeFileSync(path, doc.toString());
+  } catch (e) {
+    return err(path, [(e as Error).message]);
+  }
+
+  // Safety net only matters on the write branch (after an unlink there is no file).
+  if (!emptied) {
+    const fileErr = loadEntries(dir).errors.find((e) => e.file === basename(file));
+    if (fileErr) {
+      writeFileSync(path, original);
+      return err(path, [`✗ ${fileErr.message}`]);
+    }
+  }
+
+  return {
+    ok: true,
+    file: path,
+    created: false,
+    lines: [
+      emptied
+        ? `✗ deleted '${expectedAction}' (removed empty ${basename(file)})`
+        : `✗ deleted '${expectedAction}'`,
+    ],
+  };
+}
+
+export function editEntry(
+  dir: string,
+  file: string,
+  index: number,
+  entry: EntryInput,
+  expectedAction: string,
+): AddResult {
+  if ("app" in entry) {
+    return err("", ["Error: entry must not have an app field; use --app instead"]);
+  }
+  const parsed = entrySchema.safeParse(entry);
+  if (!parsed.success) {
+    return err(
+      "",
+      parsed.error.issues.map((i) => i.message),
+    );
+  }
+  const clean = buildClean(parsed.data);
+
+  const path = join(dir, file);
+  let original: string;
+  try {
+    original = readFileSync(path, "utf8");
+  } catch (e) {
+    return err(path, [(e as Error).message]);
+  }
+
+  const doc = parseDocument(original);
+  const node = doc.getIn(["entries", index]);
+  const action = isMap(node) ? String(node.get("action") ?? "").trim() : undefined;
+  if (action !== expectedAction.trim()) {
+    return err(path, ["✗ entry changed on disk — reload and retry"]);
+  }
+
+  doc.setIn(["entries", index], doc.createNode(clean));
+
+  try {
+    writeFileSync(path, doc.toString());
+  } catch (e) {
+    return err(path, [(e as Error).message]);
+  }
+
+  const fileErr = loadEntries(dir).errors.find((e) => e.file === basename(file));
+  if (fileErr) {
+    writeFileSync(path, original);
+    return err(path, [`✗ ${fileErr.message}`]);
+  }
+
+  return { ok: true, file: path, created: false, lines: [`✓ updated '${clean.action}'`] };
 }

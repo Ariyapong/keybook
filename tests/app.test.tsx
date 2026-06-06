@@ -1,18 +1,27 @@
 import { render } from "ink-testing-library";
 import { describe, expect, it, vi } from "vitest";
 import { loadEntries } from "../src/data/loader";
-import type { Entry } from "../src/data/types";
+import type { LoadedEntry } from "../src/data/types";
 import { App } from "../src/tui/App";
 import { tmpDataDir } from "./_helpers";
 
-const entries: Entry[] = [
-  { app: "Finder", action: "Open a new tab", keys: "⌘T", tags: ["new tab"] },
-  { app: "Terminal", action: "Clear screen", keys: "⌘K" },
+const entries: LoadedEntry[] = [
+  {
+    app: "Finder",
+    action: "Open a new tab",
+    keys: "⌘T",
+    tags: ["new tab"],
+    file: "finder.yaml",
+    index: 0,
+  },
+  { app: "Terminal", action: "Clear screen", keys: "⌘K", file: "terminal.yaml", index: 0 },
   {
     app: "Finder",
     action: "Open Terminal here",
     steps: ["Right-click"],
     command: 'open -a Terminal "$PWD"',
+    file: "finder.yaml",
+    index: 1,
   },
 ];
 
@@ -172,5 +181,103 @@ describe("App", () => {
     const out = lastFrame() ?? "";
     expect(out).toContain("Force push"); // reloaded results contain the new action
     expect(out).toContain("✓"); // success flash
+  });
+
+  it("edits the selected entry on ⌃E and reflects the change after reload", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x05"); // ⌃E -> edit form (only entry "Pull" is selected)
+    await tick();
+    expect(lastFrame()).toContain("Edit entry");
+    expect(lastFrame()).toContain("Pull");
+    stdin.write("\x0e"); // ⌃N: Type -> Action
+    await tick();
+    stdin.write(" (rebase)");
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm -> editEntry + reload + flash
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Pull (rebase)");
+    expect(out).toContain("✓");
+  });
+
+  it("deletes the selected entry on ⌃X then y, leaving the sibling", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml":
+        'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n  - action: Push\n    keys: "⇧⌘P"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    // Browse order sorts by app then action: "Pull" < "Push", so index 0 = Pull.
+    stdin.write("\x18"); // ⌃X -> arm confirm
+    await tick();
+    expect(lastFrame()).toContain("Delete 'Fork: Pull'?");
+    expect(lastFrame()).toContain("y / n");
+    stdin.write("y"); // confirm
+    await tick();
+    const out = lastFrame() ?? "";
+    // The success flash ("✗ deleted 'Pull'") echoes the word "Pull", so assert on
+    // the deleted entry's KEYS (⇧⌘L only ever appeared on the Pull row) instead.
+    expect(out).not.toContain("⇧⌘L");
+    expect(out).toContain("Push");
+    expect(out).toContain("✗ deleted");
+  });
+
+  it("cancels the delete on any other key", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x18"); // ⌃X
+    await tick();
+    stdin.write("n"); // cancel
+    await tick();
+    expect(lastFrame()).toContain("Pull");
+    expect(lastFrame()).not.toContain("Delete 'Fork");
+  });
+
+  it("cancels the armed delete on esc without quitting (handler ordering)", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x18"); // ⌃X -> arm confirm
+    await tick();
+    expect(lastFrame()).toContain("Delete 'Fork: Pull'?");
+    stdin.write("\x1b"); // esc -> must cancel the delete, NOT quit the app
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).not.toContain("Delete 'Fork"); // confirm dismissed
+    expect(out).toContain("Pull"); // entry still present
+    expect(out).toContain("search:"); // app still rendered (did not exit)
+  });
+
+  it("⌃E and ⌃X are no-ops when there are no results", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("zzzzz"); // no matches
+    await tick();
+    expect(lastFrame()).toContain("No matches");
+    stdin.write("\x05"); // ⌃E
+    await tick();
+    stdin.write("\x18"); // ⌃X
+    await tick();
+    expect(lastFrame()).not.toContain("Edit entry");
+    expect(lastFrame()).not.toContain("Delete '");
   });
 });

@@ -34,4 +34,19 @@ describe("loadEntries", () => {
     const { errors } = loadEntries("/no/such/keybook/dir");
     expect(errors).toHaveLength(1);
   });
+
+  it("stamps file and the ORIGINAL YAML index, even past an invalid entry", () => {
+    const dir = tmpDataDir({
+      "x.yaml":
+        "app: X\nentries:\n" +
+        '  - action: A\n    keys: "1"\n' +
+        "  - action: Bad\n" + // invalid: no keys/steps/command -> skipped, YAML index 1
+        '  - action: C\n    keys: "3"\n',
+    });
+    const { entries } = loadEntries(dir);
+    expect(entries.map((e) => [e.action, e.file, e.index])).toEqual([
+      ["A", "x.yaml", 0],
+      ["C", "x.yaml", 2], // index 2, NOT the post-filter position 1
+    ]);
+  });
 });

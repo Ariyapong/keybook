@@ -2,6 +2,7 @@ import { render } from "ink-testing-library";
 import { describe, expect, it, vi } from "vitest";
 import type { AddResult } from "../src/data/types";
 import { AddEntryForm } from "../src/tui/AddEntryForm";
+import { entryToDraft } from "../src/tui/useAddForm";
 
 const ok: AddResult = {
   ok: true,
@@ -132,5 +133,55 @@ describe("AddEntryForm", () => {
     expect(out).toContain("Review");
     expect(out).toContain("Right-click the folder");
     expect(out).not.toContain("at least one step");
+  });
+
+  it("pre-fills and locks the app in edit mode", async () => {
+    const initial = entryToDraft("Fork", { action: "Push", keys: "⇧⌘P" });
+    const { lastFrame } = render(
+      <AddEntryForm
+        apps={["Fork", "Zed"]}
+        lockedApp="Fork"
+        initial={initial}
+        title="Edit entry — Fork"
+        onSubmit={vi.fn(() => ok)}
+        onComplete={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Edit entry — Fork");
+    expect(out).toContain("(locked)");
+    expect(out).toContain("Push");
+    expect(out).toContain("⇧⌘P");
+  });
+
+  it("submits the locked app and edited action on confirm", async () => {
+    const onSubmit = vi.fn(() => ok);
+    const initial = entryToDraft("Fork", { action: "Push", keys: "⇧⌘P" });
+    const { stdin } = render(
+      <AddEntryForm
+        apps={["Fork"]}
+        lockedApp="Fork"
+        initial={initial}
+        onSubmit={onSubmit}
+        onComplete={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    await tick();
+    stdin.write("\x0e"); // ⌃N: Type(1) -> Action(2)
+    await tick();
+    stdin.write(" (force)"); // append to the pre-filled "Push"
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm
+    await tick();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith(
+      "Fork",
+      expect.objectContaining({ action: "Push (force)", keys: "⇧⌘P" }),
+    );
   });
 });
