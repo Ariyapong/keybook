@@ -212,3 +212,54 @@ export function deleteEntry(
     ],
   };
 }
+
+export function editEntry(
+  dir: string,
+  file: string,
+  index: number,
+  entry: EntryInput,
+  expectedAction: string,
+): AddResult {
+  if ("app" in entry) {
+    return err("", ["Error: entry must not have an app field; use --app instead"]);
+  }
+  const parsed = entrySchema.safeParse(entry);
+  if (!parsed.success) {
+    return err(
+      "",
+      parsed.error.issues.map((i) => i.message),
+    );
+  }
+  const clean = buildClean(parsed.data);
+
+  const path = join(dir, file);
+  let original: string;
+  try {
+    original = readFileSync(path, "utf8");
+  } catch (e) {
+    return err(path, [(e as Error).message]);
+  }
+
+  const doc = parseDocument(original);
+  const node = doc.getIn(["entries", index]);
+  const action = isMap(node) ? String(node.get("action") ?? "").trim() : undefined;
+  if (action !== expectedAction.trim()) {
+    return err(path, ["✗ entry changed on disk — reload and retry"]);
+  }
+
+  doc.setIn(["entries", index], doc.createNode(clean));
+
+  try {
+    writeFileSync(path, doc.toString());
+  } catch (e) {
+    return err(path, [(e as Error).message]);
+  }
+
+  const fileErr = loadEntries(dir).errors.find((e) => e.file === basename(file));
+  if (fileErr) {
+    writeFileSync(path, original);
+    return err(path, [`✗ ${fileErr.message}`]);
+  }
+
+  return { ok: true, file: path, created: false, lines: [`✓ updated '${clean.action}'`] };
+}

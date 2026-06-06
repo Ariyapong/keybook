@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadEntries } from "../src/data/loader";
-import { addEntry, deleteEntry, listApps, resolveTargetFile } from "../src/data/writer";
+import { addEntry, deleteEntry, editEntry, listApps, resolveTargetFile } from "../src/data/writer";
 import { tmpDataDir } from "./_helpers";
 
 const FORK = `app: Fork
@@ -165,5 +165,52 @@ describe("deleteEntry", () => {
   it("returns an error for a missing file", () => {
     const dir = tmpDataDir({});
     expect(deleteEntry(dir, "nope.yaml", 0, "X").ok).toBe(false);
+  });
+});
+
+describe("editEntry", () => {
+  const PAIR = `app: Fork
+entries:
+  - action: Pull
+    keys: "⇧⌘L"
+  # second
+  - action: Push
+    keys: "⇧⌘P"
+`;
+
+  it("replaces the entry in place, preserving siblings and comments", () => {
+    const dir = tmpDataDir({ "fork.yaml": PAIR });
+    const res = editEntry(dir, "fork.yaml", 0, { action: "Pull (rebase)", keys: "⇧⌘L" }, "Pull");
+    expect(res.ok).toBe(true);
+    const text = readFileSync(join(dir, "fork.yaml"), "utf8");
+    expect(text).toContain("# second");
+    const { entries, errors } = loadEntries(dir);
+    expect(errors).toEqual([]);
+    expect(entries.map((e) => e.action)).toEqual(["Pull (rebase)", "Push"]);
+    expect(entries.find((e) => e.action === "Push")?.keys).toBe("⇧⌘P");
+  });
+
+  it("rejects an invalid edit (no body) without writing", () => {
+    const dir = tmpDataDir({ "fork.yaml": PAIR });
+    const before = readFileSync(join(dir, "fork.yaml"), "utf8");
+    const res = editEntry(dir, "fork.yaml", 0, { action: "Empty" }, "Pull");
+    expect(res.ok).toBe(false);
+    expect(readFileSync(join(dir, "fork.yaml"), "utf8")).toBe(before);
+  });
+
+  it("aborts on drift", () => {
+    const dir = tmpDataDir({ "fork.yaml": PAIR });
+    const res = editEntry(dir, "fork.yaml", 0, { action: "X", keys: "A" }, "Wrong");
+    expect(res.ok).toBe(false);
+    expect(res.lines.join(" ")).toMatch(/changed on disk/);
+  });
+
+  it("rejects a stray app field", () => {
+    const dir = tmpDataDir({ "fork.yaml": PAIR });
+    const res = editEntry(
+      dir, "fork.yaml", 0, { action: "X", keys: "A", app: "Fork" } as never, "Pull",
+    );
+    expect(res.ok).toBe(false);
+    expect(res.lines.join(" ")).toMatch(/must not have an app field/);
   });
 });
