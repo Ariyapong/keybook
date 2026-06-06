@@ -120,3 +120,44 @@ Sleep 2080ms
 
 Escape
 Sleep 780ms
+
+# Ink leaves residual render in scrollback on exit; clear before the next demo.
+Type "clear"
+Enter
+Sleep 325ms
+
+# Demo 4: edit in place (⌃E) then delete with an inline confirm (⌃X) —
+# the v0.4 marquee features, acting on the entry we just added.
+Type "kb"
+Enter
+Sleep 1430ms
+
+Type "force push"
+Sleep 1690ms
+
+# ⌃E → the add form, pre-filled, with the app locked to Fork
+Ctrl+E
+Sleep 1820ms
+
+# Action field — refine the action in place
+Ctrl+N
+Sleep 520ms
+Type " (lease)"
+Sleep 1040ms
+
+# Review, then save → "✓ updated" flash, back to search
+Enter
+Sleep 2080ms
+Enter
+Sleep 1690ms
+
+# ⌃X → inline "Delete '…'?  y / n" confirm in the footer
+Ctrl+X
+Sleep 1820ms
+
+# y → "✗ deleted", the entry is removed
+Type "y"
+Sleep 1690ms
+
+Escape
+Sleep 780ms
