@@ -59,11 +59,23 @@ describe("Footer", () => {
     expect(lastFrame()).toContain("2");
     expect(lastFrame()).toContain("keybook check");
   });
-  it("hints at word-back delete and clear-query bindings", () => {
+  it("hints at the clear-query binding", () => {
     const { lastFrame } = render(<Footer flash="" errorCount={0} resultCount={5} />);
-    const frame = lastFrame() ?? "";
-    expect(frame).toContain("⌃W");
-    expect(frame).toContain("⌃U");
+    expect(lastFrame() ?? "").toContain("⌃U");
+  });
+  it("hints at the edit and delete bindings", () => {
+    const { lastFrame } = render(<Footer flash="" errorCount={0} resultCount={5} />);
+    const f = lastFrame() ?? "";
+    expect(f).toContain("⌃E");
+    expect(f).toContain("⌃X");
+  });
+  it("shows the delete confirm prompt with a visible y / n", () => {
+    const { lastFrame } = render(
+      <Footer flash="" errorCount={0} resultCount={3} confirm="Delete 'Fork: Push'?" />,
+    );
+    const f = lastFrame() ?? "";
+    expect(f).toContain("Delete 'Fork: Push'?");
+    expect(f).toContain("y / n");
   });
   it("hints at the add binding", () => {
     const { lastFrame } = render(<Footer flash="" errorCount={0} resultCount={5} />);
