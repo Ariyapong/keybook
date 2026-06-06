@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { copyToClipboard } from "../clipboard";
 import { loadEntries } from "../data/loader";
 import type { AddResult, Entry, EntryInput, LoadedEntry } from "../data/types";
-import { addEntry, editEntry, listApps, resolveTargetFile } from "../data/writer";
+import { addEntry, deleteEntry, editEntry, listApps, resolveTargetFile } from "../data/writer";
 import { search } from "../search";
 import { AddEntryForm } from "./AddEntryForm";
 import { Footer } from "./Footer";
@@ -32,6 +32,7 @@ export function App({
   const [entries, setEntries] = useState(initial);
   const [mode, setMode] = useState<"search" | "add" | "edit">("search");
   const [editTarget, setEditTarget] = useState<LoadedEntry | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<LoadedEntry | null>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
   const [flash, setFlash] = useState("");
@@ -48,9 +49,38 @@ export function App({
 
   useInput(
     (input, key) => {
+      // ⌃C always hard-quits, even while a delete is armed.
+      if (key.ctrl && input === "c") {
+        exit();
+        return;
+      }
+
+      // Delete-confirm interception — before the esc branch so esc cancels the
+      // pending delete instead of quitting. Manages flash itself (it returns early).
+      if (pendingDelete) {
+        const confirmKey = key.return || input === "y" || input === "Y";
+        if (confirmKey && dataDir) {
+          const r = deleteEntry(
+            dataDir,
+            pendingDelete.file,
+            pendingDelete.index,
+            pendingDelete.action.trim(),
+          );
+          if (r.ok) {
+            reload();
+            setSelected(0);
+          }
+          setFlash(r.lines[0] ?? (r.ok ? "✗ deleted" : "✗ delete failed"));
+        } else {
+          setFlash("");
+        }
+        setPendingDelete(null);
+        return;
+      }
+
       if (!key.return && flash) setFlash("");
 
-      if (key.escape || (key.ctrl && input === "c")) {
+      if (key.escape) {
         exit();
         return;
       }
@@ -61,6 +91,10 @@ export function App({
       if (dataDir && current && key.ctrl && input === "e") {
         setEditTarget(current);
         setMode("edit");
+        return;
+      }
+      if (dataDir && current && key.ctrl && input === "x") {
+        setPendingDelete(current);
         return;
       }
       if (key.downArrow || (key.ctrl && input === "n")) {
@@ -165,7 +199,14 @@ export function App({
         />
         <PreviewPane entry={current} width={right} />
       </Box>
-      <Footer flash={flash} errorCount={errorCount} resultCount={results.length} />
+      <Footer
+        flash={flash}
+        errorCount={errorCount}
+        resultCount={results.length}
+        confirm={
+          pendingDelete ? `Delete '${pendingDelete.app}: ${pendingDelete.action}'?` : undefined
+        }
+      />
     </Box>
   );
 }

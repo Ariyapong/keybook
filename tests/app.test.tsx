@@ -206,4 +206,60 @@ describe("App", () => {
     expect(out).toContain("Pull (rebase)");
     expect(out).toContain("✓");
   });
+
+  it("deletes the selected entry on ⌃X then y, leaving the sibling", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml":
+        'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n  - action: Push\n    keys: "⇧⌘P"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    // Browse order sorts by app then action: "Pull" < "Push", so index 0 = Pull.
+    stdin.write("\x18"); // ⌃X -> arm confirm
+    await tick();
+    expect(lastFrame()).toContain("Delete 'Fork: Pull'?");
+    expect(lastFrame()).toContain("y / n");
+    stdin.write("y"); // confirm
+    await tick();
+    const out = lastFrame() ?? "";
+    // The success flash ("✗ deleted 'Pull'") echoes the word "Pull", so assert on
+    // the deleted entry's KEYS (⇧⌘L only ever appeared on the Pull row) instead.
+    expect(out).not.toContain("⇧⌘L");
+    expect(out).toContain("Push");
+    expect(out).toContain("✗ deleted");
+  });
+
+  it("cancels the delete on any other key", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x18"); // ⌃X
+    await tick();
+    stdin.write("n"); // cancel
+    await tick();
+    expect(lastFrame()).toContain("Pull");
+    expect(lastFrame()).not.toContain("Delete 'Fork");
+  });
+
+  it("⌃E and ⌃X are no-ops when there are no results", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("zzzzz"); // no matches
+    await tick();
+    expect(lastFrame()).toContain("No matches");
+    stdin.write("\x05"); // ⌃E
+    await tick();
+    stdin.write("\x18"); // ⌃X
+    await tick();
+    expect(lastFrame()).not.toContain("Edit entry");
+    expect(lastFrame()).not.toContain("Delete '");
+  });
 });
