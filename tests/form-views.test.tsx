@@ -26,6 +26,17 @@ describe("FormFields", () => {
     );
     expect(lastFrame() ?? "").toContain("push");
   });
+
+  it("renders the app field locked (no picker) when lockedApp is set", () => {
+    const draft = { ...emptyDraft, app: "Fork", type: "shortcut" as const };
+    const { lastFrame } = render(
+      <FormFields draft={draft} apps={["Fork", "Zed"]} appIndex={0} focused={1} lockedApp="Fork" />,
+    );
+    const out = lastFrame() ?? "";
+    expect(out).toContain("(locked)");
+    expect(out).not.toContain("Create new app");
+    expect(out).not.toContain("(↑/↓)");
+  });
 });
 
 describe("ReviewScreen", () => {
