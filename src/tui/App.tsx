@@ -165,7 +165,10 @@ export function App({
         lockedApp={editTarget.app}
         initial={entryToDraft(editTarget.app, editTarget)}
         title={`Edit entry — ${editTarget.app}`}
-        resolveTarget={(a: string) => resolveTargetFile(dataDir, a)}
+        // Edit writes to the entry's exact source file (editTarget.file). Resolve
+        // the review-screen target to that file directly rather than re-resolving
+        // by app name, which would show the wrong file if two files share an app.
+        resolveTarget={() => ({ file: editTarget.file, created: false })}
         onSubmit={(_app: string, entry: EntryInput): AddResult =>
           editEntry(dataDir, editTarget.file, editTarget.index, entry, editTarget.action)
         }

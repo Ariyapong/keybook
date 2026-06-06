@@ -245,6 +245,24 @@ describe("App", () => {
     expect(lastFrame()).not.toContain("Delete 'Fork");
   });
 
+  it("cancels the armed delete on esc without quitting (handler ordering)", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    stdin.write("\x18"); // ⌃X -> arm confirm
+    await tick();
+    expect(lastFrame()).toContain("Delete 'Fork: Pull'?");
+    stdin.write("\x1b"); // esc -> must cancel the delete, NOT quit the app
+    await tick();
+    const out = lastFrame() ?? "";
+    expect(out).not.toContain("Delete 'Fork"); // confirm dismissed
+    expect(out).toContain("Pull"); // entry still present
+    expect(out).toContain("search:"); // app still rendered (did not exit)
+  });
+
   it("⌃E and ⌃X are no-ops when there are no results", async () => {
     const dir = tmpDataDir({
       "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
