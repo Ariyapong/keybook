@@ -9,6 +9,11 @@ export interface Entry {
   source?: string;
 }
 
+export interface LoadedEntry extends Entry {
+  file: string; // basename of the source file, e.g. "fork.yaml"
+  index: number; // original position in the file's `entries:` array
+}
+
 export interface LoadError {
   file: string;
   entryIndex: number | null; // null = file-level error
@@ -16,7 +21,7 @@ export interface LoadError {
 }
 
 export interface LoadResult {
-  entries: Entry[];
+  entries: LoadedEntry[];
   errors: LoadError[];
 }
 

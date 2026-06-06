@@ -2,12 +2,12 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { entrySchema, fileShape } from "./schema";
-import type { Entry, LoadError, LoadResult } from "./types";
+import type { LoadError, LoadResult, LoadedEntry } from "./types";
 
 const YAML_RE = /\.ya?ml$/;
 
 export function loadEntries(dataDir: string): LoadResult {
-  const entries: Entry[] = [];
+  const entries: LoadedEntry[] = [];
   const errors: LoadError[] = [];
 
   let files: string[];
@@ -58,7 +58,7 @@ export function loadEntries(dataDir: string): LoadResult {
         });
         return;
       }
-      entries.push({ app, ...parsed.data });
+      entries.push({ app, file, index: i, ...parsed.data });
     });
   }
 
