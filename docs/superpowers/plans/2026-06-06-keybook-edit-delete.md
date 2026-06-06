@@ -132,19 +132,24 @@ Expected: FAIL — current `search(entries: Entry[]): Entry[]` returns `Entry`, 
 
 - [ ] **Step 7: Make `search` generic**
 
-In `src/search.ts`, change the signature on line 11 from:
-
-```ts
-export function search(entries: Entry[], query: string): Entry[] {
-```
-
-to:
+In `src/search.ts`, change the signature on line 11 from `search(entries: Entry[], query: string): Entry[]` to a generic one, and pin Fzf's element type to `Entry` (its `haystack` selector is typed `(e: Entry) => string`, so a bare generic call fails to type-check against `fzf@0.5.2`'s `SyncOptionsTuple<T>`). The matched items are the original `T` objects, so casting the result back to `T` is sound:
 
 ```ts
 export function search<T extends Entry>(entries: T[], query: string): T[] {
+  const q = query.trim();
+  if (!q) {
+    return [...entries].sort(
+      (a, b) => a.app.localeCompare(b.app) || a.action.localeCompare(b.action),
+    );
+  }
+  // Pin Fzf's element type to Entry (haystack reads only Entry fields); the
+  // matched items are the original T objects, so restoring T on return is sound.
+  const fzf = new Fzf(entries as Entry[], { selector: haystack, match: extendedMatch });
+  return fzf.find(q).map((r) => r.item as T);
+}
 ```
 
-No body change — `[...entries].sort(...)` and `fzf.find(q).map((r) => r.item)` both already return the element type.
+`haystack` stays `(e: Entry) => string` (unchanged).
 
 - [ ] **Step 8: Run the full loader + search suites**
 
