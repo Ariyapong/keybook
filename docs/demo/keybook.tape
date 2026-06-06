@@ -12,7 +12,7 @@ Set Width 1100
 Set Height 650
 Set Padding 24
 Set Theme "Catppuccin Mocha"
-Set TypingSpeed 55ms
+Set TypingSpeed 72ms
 
 Env KEYBOOK_DATA_DIR "/tmp/keybook-demo"
 
@@ -39,84 +39,84 @@ Show
 # Demo 1: fuzzy search for a shortcut across apps
 Type "keybook"
 Enter
-Sleep 1300ms
+Sleep 1690ms
 
 Type "new tab"
-Sleep 1800ms
+Sleep 2340ms
 
 Down
-Sleep 300ms
+Sleep 390ms
 Down
-Sleep 300ms
+Sleep 390ms
 Down
-Sleep 500ms
+Sleep 650ms
 
 Enter
-Sleep 1100ms
+Sleep 1430ms
 
 Escape
-Sleep 400ms
+Sleep 520ms
 
 # Ink leaves residual render in scrollback on exit; clear before the next demo.
 Type "clear"
 Enter
-Sleep 250ms
+Sleep 325ms
 
 # Demo 2: fuzzy search for a recipe (multi-step entry)
 Type "kb"
 Enter
-Sleep 1100ms
+Sleep 1430ms
 
 Type "terminal here"
-Sleep 1800ms
+Sleep 2340ms
 
 Enter
-Sleep 1100ms
+Sleep 1430ms
 
 Escape
-Sleep 400ms
+Sleep 520ms
 
 Type "clear"
 Enter
-Sleep 250ms
+Sleep 325ms
 
 # Demo 3: add a new entry via ⌃O — the v0.3 marquee feature
 Type "kb"
 Enter
-Sleep 1100ms
+Sleep 1430ms
 
 Ctrl+O
-Sleep 700ms
+Sleep 910ms
 
 # App field — navigate Claude → Finder → Fork
 Down
-Sleep 350ms
+Sleep 455ms
 Down
-Sleep 500ms
+Sleep 650ms
 
 # Confirm Fork, advance to Type field (default "shortcut" is fine)
 Enter
-Sleep 400ms
+Sleep 520ms
 Ctrl+N
-Sleep 500ms
+Sleep 650ms
 
 # Action field
 Type "Force push"
-Sleep 800ms
+Sleep 1040ms
 
 # Keys field — word-form input gets normalized to glyphs ("⇧⌘K")
 Ctrl+N
-Sleep 400ms
+Sleep 520ms
 Type "shift cmd k"
-Sleep 1000ms
+Sleep 1300ms
 
 # Review screen — pause for viewer to read the rendered entry
 Enter
-Sleep 1700ms
+Sleep 2210ms
 
 # Confirm save — returns to search with "✓ added" flash
 Enter
-Sleep 1600ms
+Sleep 2080ms
 
 Escape
-Sleep 600ms
+Sleep 780ms
