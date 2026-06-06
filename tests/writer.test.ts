@@ -144,7 +144,9 @@ describe("deleteEntry", () => {
   });
 
   it("unlinks the file when the last entry is deleted", () => {
-    const dir = tmpDataDir({ "solo.yaml": 'app: Solo\nentries:\n  - action: Only\n    keys: "A"\n' });
+    const dir = tmpDataDir({
+      "solo.yaml": 'app: Solo\nentries:\n  - action: Only\n    keys: "A"\n',
+    });
     const res = deleteEntry(dir, "solo.yaml", 0, "Only");
     expect(res.ok).toBe(true);
     expect(existsSync(join(dir, "solo.yaml"))).toBe(false);
