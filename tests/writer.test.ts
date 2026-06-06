@@ -208,7 +208,11 @@ entries:
   it("rejects a stray app field", () => {
     const dir = tmpDataDir({ "fork.yaml": PAIR });
     const res = editEntry(
-      dir, "fork.yaml", 0, { action: "X", keys: "A", app: "Fork" } as never, "Pull",
+      dir,
+      "fork.yaml",
+      0,
+      { action: "X", keys: "A", app: "Fork" } as never,
+      "Pull",
     );
     expect(res.ok).toBe(false);
     expect(res.lines.join(" ")).toMatch(/must not have an app field/);
