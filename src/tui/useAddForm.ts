@@ -74,8 +74,24 @@ export function draftToEntryInput(d: Draft): EntryInput {
   return e;
 }
 
-export function useAddForm(initialApp = "") {
-  const [draft, setDraft] = useState<Draft>(() => ({ ...emptyDraft, app: initialApp }));
+/** Inverse of draftToEntryInput: seed a Draft from an existing entry for editing. */
+export function entryToDraft(app: string, e: EntryInput): Draft {
+  const type: EntryType = e.keys ? "shortcut" : e.command ? "command" : "recipe";
+  return {
+    ...emptyDraft,
+    app,
+    type,
+    action: e.action,
+    keys: e.keys ?? "",
+    command: e.command ?? "",
+    steps: e.steps ? [...e.steps] : [],
+    tags: (e.tags ?? []).join(", "),
+    notes: e.notes ?? "",
+  };
+}
+
+export function useAddForm(initial: Partial<Draft> = {}) {
+  const [draft, setDraft] = useState<Draft>(() => ({ ...emptyDraft, ...initial }));
   const update = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
   return { draft, update, setDraft };
 }
