@@ -23,6 +23,9 @@ export interface AddEntryFormProps {
   onComplete?: (result: AddResult) => void;
   onCancel: () => void;
   resolveTarget?: (app: string) => { file: string; created: boolean };
+  initial?: import("./useAddForm").Draft;
+  lockedApp?: string;
+  title?: string;
 }
 
 export function AddEntryForm({
@@ -32,11 +35,14 @@ export function AddEntryForm({
   onComplete,
   onCancel,
   resolveTarget,
+  initial,
+  lockedApp,
+  title,
 }: AddEntryFormProps) {
   // Start synced to the highlighted choice (appIndex 0) so the draft is in sync
   // even if the user advances past field 0 without pressing ↑/↓.
-  const { draft, update, setDraft } = useAddForm({ app: apps[0] ?? "" });
-  const [focused, setFocused] = useState(0);
+  const { draft, update, setDraft } = useAddForm(initial ?? { app: apps[0] ?? "" });
+  const [focused, setFocused] = useState(lockedApp ? 1 : 0);
   const [appIndex, setAppIndex] = useState(0);
   const [screen, setScreen] = useState<"form" | "review">("form");
   const [hint, setHint] = useState("");
@@ -83,7 +89,7 @@ export function AddEntryForm({
 
     if (key.escape) return onCancel();
     if (key.ctrl && input === "n") return setFocused((f) => Math.min(f + 1, LAST_FIELD));
-    if (key.ctrl && input === "p") return setFocused((f) => Math.max(f - 1, 0));
+    if (key.ctrl && input === "p") return setFocused((f) => Math.max(f - 1, lockedApp ? 1 : 0));
 
     // Field 0: app selection. ↑/↓ move the highlight AND sync the draft so it
     // always tracks the highlighted choice (no appIndex/draft divergence).
@@ -169,7 +175,7 @@ export function AddEntryForm({
 
   return (
     <Box flexDirection="column">
-      <Text color="cyan">keybook add</Text>
+      <Text color="cyan">{title ?? "keybook add"}</Text>
       <Box marginTop={1}>
         <FormFields
           draft={draft}
@@ -177,6 +183,7 @@ export function AddEntryForm({
           appIndex={appIndex}
           focused={focused}
           existingTags={existingTags}
+          lockedApp={lockedApp}
         />
       </Box>
       <Box marginTop={1}>
