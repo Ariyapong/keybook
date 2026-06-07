@@ -39,7 +39,9 @@ Show
 # Demo 1: fuzzy search for a shortcut across apps
 Type "keybook"
 Enter
-Sleep 1690ms
+# First launch: node cold-start + Ink laying out the full list. Wait for the
+# search bar and results to render before typing, or the query lands too early.
+Sleep 2800ms
 
 Type "new tab"
 Sleep 2340ms
@@ -65,7 +67,7 @@ Sleep 325ms
 # Demo 2: fuzzy search for a recipe (multi-step entry)
 Type "kb"
 Enter
-Sleep 1430ms
+Sleep 2000ms
 
 Type "terminal here"
 Sleep 2340ms
@@ -83,7 +85,7 @@ Sleep 325ms
 # Demo 3: add a new entry via ⌃O — the v0.3 marquee feature
 Type "kb"
 Enter
-Sleep 1430ms
+Sleep 2000ms
 
 Ctrl+O
 Sleep 910ms
@@ -130,7 +132,7 @@ Sleep 325ms
 # the v0.4 marquee features, acting on the entry we just added.
 Type "kb"
 Enter
-Sleep 1430ms
+Sleep 2000ms
 
 Type "force push"
 Sleep 1690ms
