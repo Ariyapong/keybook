@@ -125,7 +125,10 @@ export function AddEntryForm({
           : (idx + 1) % TYPES.length;
         return update({ type: TYPES[next] });
       }
-      if (key.return) return goReview();
+      // A chooser field: ⏎ confirms the selection and advances to Action (like
+      // the App field), rather than jumping to review — keeps ⏎ consistent and
+      // never strands the user on a field that ignores typing.
+      if (key.return) return setFocused(2);
       return;
     }
 
@@ -162,6 +165,11 @@ export function AddEntryForm({
       return update({ [fieldKey]: (draft[fieldKey] as string) + input });
   });
 
+  // ⏎ advances on the chooser fields (App, Type) and reviews on the text fields;
+  // recipe steps use ⏎ to append a line. Label it accurately per field.
+  const enterHint =
+    focused <= 1 ? "next" : focused === 3 && draft.type === "recipe" ? "add step" : "review";
+
   if (screen === "review") {
     return (
       <ReviewScreen
@@ -186,10 +194,9 @@ export function AddEntryForm({
           lockedApp={lockedApp}
         />
       </Box>
-      <Box marginTop={1}>
-        <Text color={hint ? "red" : "gray"}>
-          {hint || "⌃N next · ⌃P prev · ⏎ review · esc cancel"}
-        </Text>
+      <Box marginTop={1} flexDirection="column">
+        {hint ? <Text color="red">{hint}</Text> : null}
+        <Text color="gray">{`⌃N next · ⌃P prev · ⏎ ${enterHint} · esc cancel`}</Text>
       </Box>
     </Box>
   );
