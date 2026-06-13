@@ -1,0 +1,31 @@
+app: Cursor
+entries:
+  - action: Inherits the VS Code keymap
+    steps:
+      - Cursor is a VS Code fork — all standard editing/navigation shortcuts match VS Code
+      - See the "VS Code" entries in keybook for those
+    notes: This file lists only Cursor's AI-specific additions.
+    tags: [info, vscode]
+  - action: Inline edit (edit selection with AI)
+    keys: "⌘K"
+    tags: [ai, edit]
+  - action: Toggle the AI chat / sidepanel
+    keys: "⌘I, ⌘L"
+    notes: Both shortcuts toggle the same sidepanel. ⌘L also has a secondary role — when code is selected it adds the selection to a new chat.
+    tags: [ai, chat]
+  - action: Toggle Agent layout
+    keys: "⌘E"
+    tags: [ai, agent]
+  - action: Add the current selection to chat
+    keys: "⌘⇧L"
+    tags: [ai, chat, context]
+  - action: Accept an inline (Tab) completion
+    keys: "⇥"
+    tags: [ai, autocomplete]
+  - action: Accept / reject all AI-suggested changes
+    keys: "⌘⏎, ⌘⌫"
+    notes: ⌘⏎ accepts all suggested changes; ⌘⌫ rejects them.
+    tags: [ai, diff]
+  - action: Open a new AI chat
+    keys: "⌘N"
+    tags: [ai, chat]
