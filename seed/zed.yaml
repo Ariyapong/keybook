@@ -1,0 +1,45 @@
+app: Zed
+entries:
+  - action: Open the command palette
+    keys: "⌘⇧P"
+    tags: [commands, palette]
+  - action: Open a file by name (file finder)
+    keys: "⌘P"
+    tags: [open file, goto]
+  - action: Project-wide search
+    keys: "⌘⇧F"
+    tags: [search, find]
+  - action: Find in buffer / replace in buffer
+    keys: "⌘F, ⌘⌥F"
+    notes: ⌘F opens find; ⌘⌥F opens find-and-replace.
+    tags: [find, replace]
+  - action: Add a cursor above / below
+    keys: "⌘⌥↑, ⌘⌥↓"
+    tags: [multi cursor]
+  - action: Select the next occurrence
+    keys: "⌘D"
+    tags: [multi cursor, select]
+  - action: Go to definition
+    keys: "F12"
+    tags: [navigate]
+  - action: Rename symbol
+    keys: "F2"
+    tags: [refactor]
+  - action: Toggle the integrated terminal panel
+    keys: "⌃`"
+    tags: [terminal]
+  - action: Toggle the project panel
+    keys: "⌘⇧E"
+    tags: [explorer, files]
+  - action: Go to symbol in the buffer (outline)
+    keys: "⌘⇧O"
+    tags: [navigate, outline]
+  - action: Toggle line comment
+    keys: "⌘/"
+    tags: [comment]
+  - action: Format the buffer
+    keys: "⌘⇧I"
+    tags: [format]
+  - action: Toggle the AI agent panel
+    keys: "⌘?"
+    tags: [ai, assistant]
