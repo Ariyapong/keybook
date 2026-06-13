@@ -33,6 +33,7 @@ describe("seed data", () => {
       "Git",
       "Google Chrome",
       "Safari",
+      "JetBrains",
     ]) {
       expect(apps.has(a)).toBe(true);
     }
