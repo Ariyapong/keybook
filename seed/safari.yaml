@@ -1,0 +1,51 @@
+app: Safari
+entries:
+  - action: Open a new tab
+    keys: "⌘T"
+    tags: [new tab]
+  - action: Open a new window
+    keys: "⌘N"
+  - action: Open a new private window
+    keys: "⌘⇧N"
+    tags: [private, incognito]
+  - action: Reopen the last closed tab
+    keys: "⌘⇧T"
+    tags: [restore tab]
+  - action: Close the current tab
+    keys: "⌘W"
+  - action: Next / previous tab
+    keys: "⌃⇥, ⌃⇧⇥"
+  - action: Jump to tab 1–8
+    keys: "⌘1"
+    notes: ⌘1–⌘8 select the first eight tabs; ⌘9 selects the last tab.
+  - action: Focus the Smart Search field (address bar)
+    keys: "⌘L"
+    tags: [url, search]
+  - action: Find on the page
+    keys: "⌘F"
+  - action: Reload / reload from origin
+    keys: "⌘R, ⌥⌘R"
+    notes: ⌥⌘R reloads ignoring the cache (from origin).
+  - action: Show / hide the sidebar
+    keys: "⌘⇧L"
+    tags: [sidebar, bookmarks]
+  - action: Show Reader
+    keys: "⌘⇧R"
+    tags: [reader]
+  - action: Add a bookmark for this page
+    keys: "⌘D"
+    tags: [favorite]
+  - action: Back / forward
+    keys: "⌘[, ⌘]"
+  - action: Zoom in / out / reset
+    keys: "⌘+, ⌘-, ⌘0"
+  - action: Show the tab overview
+    keys: "⌘⇧\\"
+    tags: [tabs, overview]
+  - action: Open the Web Inspector
+    keys: "⌥⌘I"
+    notes: Requires the Develop menu — enable it in Settings → Advanced → "Show features for web developers".
+    tags: [devtools, inspect]
+  - action: Toggle full screen
+    keys: "⌃⌘F"
+    tags: [fullscreen]

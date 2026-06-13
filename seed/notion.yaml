@@ -1,0 +1,62 @@
+app: Notion
+entries:
+  - action: Open Quick Find / search
+    keys: "⌘P, ⌘K"
+    tags: [search, find, navigate]
+  - action: Create a new page
+    keys: "⌘N"
+    tags: [new page]
+  - action: Open a new tab
+    keys: "⌘T"
+    tags: [tab]
+  - action: Open a new Notion window
+    keys: "⌘⇧N"
+    tags: [window]
+  - action: Reopen last closed tab
+    keys: "⌘⇧T"
+    tags: [tab, restore]
+  - action: Close the current tab
+    keys: "⌘W"
+    tags: [tab]
+  - action: Copy link to the current page
+    keys: "⌘L"
+    tags: [link, share]
+  - action: Navigate back / forward
+    keys: "⌘[, ⌘]"
+    tags: [navigate, history]
+  - action: Toggle dark / light mode
+    keys: "⌘⇧L"
+    tags: [appearance, theme]
+  - action: Bold selected text
+    keys: "⌘B"
+    tags: [format, text]
+  - action: Italicize selected text
+    keys: "⌘I"
+    tags: [format, text]
+  - action: Underline selected text
+    keys: "⌘U"
+    tags: [format, text]
+  - action: Strikethrough selected text
+    keys: "⌘⇧S"
+    tags: [format, text]
+  - action: Inline code for selected text
+    keys: "⌘E"
+    tags: [format, code]
+  - action: Add link to selected text
+    keys: "⌘K"
+    tags: [link]
+  - action: Indent / un-indent a block
+    keys: "⇥, ⇧⇥"
+    tags: [indent, nest, block]
+  - action: Duplicate selected blocks
+    keys: "⌘D"
+    tags: [block, duplicate]
+  - action: Add a comment
+    keys: "⌘⇧M"
+    tags: [comment]
+  - action: Insert a block (slash menu)
+    steps:
+      - Type / at the start of a line
+      - Pick a block type (heading, to-do, toggle, code, …)
+    notes: The slash menu is the main way to insert and transform blocks.
+    tags: [block, insert, tip]

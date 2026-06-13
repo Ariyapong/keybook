@@ -31,6 +31,12 @@ describe("seed data", () => {
       "Vim",
       "Nano",
       "Git",
+      "Google Chrome",
+      "Safari",
+      "JetBrains",
+      "Notion",
+      "Cursor",
+      "Zed",
     ]) {
       expect(apps.has(a)).toBe(true);
     }

@@ -1,0 +1,63 @@
+app: JetBrains
+entries:
+  - action: Search Everywhere
+    steps:
+      - Press ⇧ twice (double-Shift)
+      - Type a class, file, action, or setting name
+    notes: The universal search across the IDE. This is the default macOS keymap, shared by IntelliJ IDEA, WebStorm, PyCharm, etc.
+    tags: [search, navigate]
+  - action: Find Action
+    keys: "⌘⇧A"
+    tags: [action, command]
+  - action: Recent files
+    keys: "⌘E"
+    tags: [navigate, recent]
+  - action: Go to class
+    keys: "⌘O"
+    tags: [navigate, goto]
+  - action: Go to file
+    keys: "⌘⇧O"
+    tags: [navigate, goto]
+  - action: Go to symbol
+    keys: "⌥⌘O"
+    tags: [navigate, goto]
+  - action: Go to declaration / definition
+    keys: "⌘B"
+    tags: [navigate]
+  - action: Find usages
+    keys: "⌥F7"
+    tags: [search, references]
+  - action: Rename (refactor)
+    keys: "⇧F6"
+    tags: [refactor]
+  - action: Reformat code
+    keys: "⌥⌘L"
+    tags: [format]
+  - action: Show intention actions / quick-fix
+    keys: "⌥⏎"
+    tags: [quickfix, lightbulb]
+  - action: Run
+    keys: "⌃R"
+    tags: [run]
+  - action: Debug
+    keys: "⌃D"
+    tags: [debug]
+  - action: Toggle line comment
+    keys: "⌘/"
+    tags: [comment]
+  - action: Duplicate the current line / selection
+    keys: "⌘D"
+    tags: [edit]
+  - action: Delete the current line
+    keys: "⌘⌫"
+    tags: [delete line]
+  - action: Generate code
+    keys: "⌘N"
+    notes: Constructors, getters/setters, overrides, etc.
+    tags: [generate]
+  - action: Extend / shrink selection
+    keys: "⌥↑, ⌥↓"
+    tags: [select]
+  - action: Code completion
+    keys: "⌃␣"
+    tags: [autocomplete]
