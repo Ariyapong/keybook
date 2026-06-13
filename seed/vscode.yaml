@@ -63,3 +63,27 @@ entries:
   - action: Open Keyboard Shortcuts
     keys: "⌘K, ⌘S"
     tags: [keybindings, shortcuts]
+  - action: Go to Symbol in the file
+    keys: "⌘⇧O"
+    tags: [navigate, symbol]
+  - action: Go to Symbol in the workspace
+    keys: "⌘T"
+    tags: [navigate, symbol]
+  - action: Find All References
+    keys: "⇧F12"
+    tags: [references]
+  - action: Toggle the panel
+    keys: "⌘J"
+    tags: [panel]
+  - action: Toggle word wrap
+    keys: "⌥Z"
+    tags: [wrap]
+  - action: Show Source Control
+    keys: "⌃⇧G"
+    tags: [git, scm]
+  - action: Show the Problems panel
+    keys: "⌘⇧M"
+    tags: [errors, diagnostics]
+  - action: Reopen the last closed editor
+    keys: "⌘⇧T"
+    tags: [restore]
