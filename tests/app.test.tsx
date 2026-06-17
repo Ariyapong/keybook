@@ -1,3 +1,6 @@
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { render } from "ink-testing-library";
 import { describe, expect, it, vi } from "vitest";
 import { loadEntries } from "../src/data/loader";
@@ -279,5 +282,90 @@ describe("App", () => {
     await tick();
     expect(lastFrame()).not.toContain("Edit entry");
     expect(lastFrame()).not.toContain("Delete '");
+  });
+});
+
+const tickA = () => new Promise((r) => setTimeout(r, 30));
+
+function dirWithEntries(): string {
+  const dir = mkdtempSync(join(tmpdir(), "kb-app-"));
+  writeFileSync(
+    join(dir, "fork.yaml"),
+    'app: Fork\nentries:\n  - action: Force push\n    keys: "⇧⌘P"\n  - action: Pull\n    keys: "⌘L"\n',
+    "utf8",
+  );
+  writeFileSync(
+    join(dir, "vscode.yaml"),
+    'app: VS Code\nentries:\n  - action: Command Palette\n    keys: "⌘⇧P"\n',
+    "utf8",
+  );
+  return dir;
+}
+
+describe("App — filter & favorites", () => {
+  it("⌃S stars the current row, flashes, and a reload still shows it", async () => {
+    const dir = dirWithEntries();
+    const { entries } = loadEntries(dir);
+    const { stdin, lastFrame } = render(<App entries={entries} dataDir={dir} />);
+    await tickA();
+    stdin.write("\x13"); // ⌃S on the first row
+    await tickA();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("★ "); // marker appeared
+    expect(out).toContain("★ starred"); // flash
+    // a fresh App over the same dir (simulated reload) still sees the star
+    const r2 = render(<App entries={loadEntries(dir).entries} dataDir={dir} />);
+    await tickA();
+    expect(r2.lastFrame() ?? "").toContain("★ ");
+  });
+
+  it("⌃F opens the filter picker", async () => {
+    const dir = dirWithEntries();
+    const { stdin, lastFrame } = render(<App entries={loadEntries(dir).entries} dataDir={dir} />);
+    await tickA();
+    stdin.write("\x06"); // ⌃F
+    await tickA();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("Filter by app");
+    expect(out).toContain("★ Favorites");
+  });
+
+  it("selecting an app scopes the list and shows the indicator", async () => {
+    const dir = dirWithEntries();
+    const { stdin, lastFrame } = render(<App entries={loadEntries(dir).entries} dataDir={dir} />);
+    await tickA();
+    stdin.write("\x06"); // ⌃F
+    await tickA();
+    stdin.write("VS"); // narrow to VS Code
+    await tickA();
+    stdin.write("\r"); // select it
+    await tickA();
+    const out = lastFrame() ?? "";
+    expect(out).toContain("(filter: VS Code)");
+    expect(out).toContain("VS Code · Command Palette");
+    expect(out).not.toContain("Fork · Force push");
+  });
+
+  it("esc clears an active filter before quitting", async () => {
+    const dir = dirWithEntries();
+    const { stdin, lastFrame } = render(<App entries={loadEntries(dir).entries} dataDir={dir} />);
+    await tickA();
+    stdin.write("\x06"); // ⌃F
+    await tickA();
+    stdin.write("\x1b[B"); // ↓ to All apps then... actually select an app to set a filter
+    await tickA();
+    // pick Fork via typing for determinism
+    // (reopen path) — simpler: cancel, then assert esc clears once a filter exists
+    stdin.write("\x1b"); // cancel picker
+    await tickA();
+    // set a favorites filter via the picker
+    stdin.write("\x06");
+    await tickA();
+    stdin.write("\r"); // ★ Favorites (first row)
+    await tickA();
+    expect(lastFrame() ?? "").toContain("(★ Favorites)");
+    stdin.write("\x1b"); // esc clears the filter (does NOT quit)
+    await tickA();
+    expect(lastFrame() ?? "").not.toContain("(★ Favorites)");
   });
 });
