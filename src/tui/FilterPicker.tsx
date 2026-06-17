@@ -87,17 +87,28 @@ export function FilterPicker({
     // width caps the overlay so truncation has a bounded column and the frame
     // cannot grow wider than the terminal (same reasoning as columnWidths in layout.ts).
     <Box flexDirection="column" borderStyle="round" paddingX={1} width={width}>
-      <Text wrap="truncate-end" color="cyan">Filter by app</Text>
+      <Text wrap="truncate-end" color="cyan">
+        Filter by app
+      </Text>
       <Text wrap="truncate-end">
         {query ? query : <Text color="gray">type to filter…</Text>}
         <Text inverse> </Text>
       </Text>
       {row("★ Favorites", 0)}
       {row("All apps", 1)}
-      <Text wrap="truncate-end" color="gray">──────────────</Text>
+      <Text wrap="truncate-end" color="gray">
+        ──────────────
+      </Text>
       {visibleApps.map((app, i) => row(app, startApp + i + 2))}
-      {matchedApps.length > bodyHeight ? <Text wrap="truncate-end" color="gray">  ↓ more</Text> : null}
-      <Text wrap="truncate-end" color="gray">↑↓ move ⏎ select ⎋ cancel</Text>
+      {matchedApps.length > bodyHeight ? (
+        <Text wrap="truncate-end" color="gray">
+          {" "}
+          ↓ more
+        </Text>
+      ) : null}
+      <Text wrap="truncate-end" color="gray">
+        ↑↓ move ⏎ select ⎋ cancel
+      </Text>
     </Box>
   );
 }

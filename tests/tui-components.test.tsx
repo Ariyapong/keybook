@@ -1,6 +1,6 @@
+import { EventEmitter } from "node:events";
 import { render as inkRender } from "ink";
 import { render } from "ink-testing-library";
-import { EventEmitter } from "node:events";
 import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { Entry } from "../src/data/types";
@@ -23,7 +23,12 @@ function renderWide(node: ReactElement, columns = 150) {
     lastFrame = () => this._last;
   }
   const stdout = new WideStdout();
-  inkRender(node, { stdout: stdout as unknown as NodeJS.WriteStream, debug: true, exitOnCtrlC: false, patchConsole: false });
+  inkRender(node, {
+    stdout: stdout as unknown as NodeJS.WriteStream,
+    debug: true,
+    exitOnCtrlC: false,
+    patchConsole: false,
+  });
   return { lastFrame: stdout.lastFrame };
 }
 
