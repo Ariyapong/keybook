@@ -1,11 +1,13 @@
 import { Box, useApp, useInput, useStdout } from "ink";
 import { useCallback, useMemo, useState } from "react";
 import { copyToClipboard } from "../clipboard";
+import { favKey, loadFavorites, toggleFavorite } from "../data/favorites";
 import { loadEntries } from "../data/loader";
 import type { AddResult, Entry, EntryInput, LoadedEntry } from "../data/types";
 import { addEntry, deleteEntry, editEntry, listApps, resolveTargetFile } from "../data/writer";
 import { search } from "../search";
 import { AddEntryForm } from "./AddEntryForm";
+import { type Filter, FilterPicker } from "./FilterPicker";
 import { Footer } from "./Footer";
 import { PreviewPane } from "./PreviewPane";
 import { ResultList } from "./ResultList";
@@ -30,7 +32,11 @@ export function App({
   const { exit } = useApp();
   const { stdout } = useStdout();
   const [entries, setEntries] = useState(initial);
-  const [mode, setMode] = useState<"search" | "add" | "edit">("search");
+  const [mode, setMode] = useState<"search" | "add" | "edit" | "filter">("search");
+  const [filter, setFilter] = useState<Filter>({ type: "all" });
+  const [favorites, setFavorites] = useState<Set<string>>(() =>
+    dataDir ? loadFavorites(dataDir) : new Set<string>(),
+  );
   const [editTarget, setEditTarget] = useState<LoadedEntry | null>(null);
   const [pendingDelete, setPendingDelete] = useState<LoadedEntry | null>(null);
   const [query, setQuery] = useState("");
@@ -41,7 +47,13 @@ export function App({
     if (dataDir) setEntries(loadEntries(dataDir).entries);
   }, [dataDir]);
 
-  const results = useMemo(() => search(entries, query), [entries, query]);
+  const scoped = useMemo(() => {
+    if (filter.type === "app") return entries.filter((e) => e.app === filter.app);
+    if (filter.type === "favorites")
+      return entries.filter((e) => favorites.has(favKey(e.app, e.action)));
+    return entries;
+  }, [entries, filter, favorites]);
+  const results = useMemo(() => search(scoped, query), [scoped, query]);
   const sel = results.length ? Math.min(selected, results.length - 1) : 0;
   const current = results[sel];
   const listHeight = visibleListHeight(stdout?.rows);
@@ -81,6 +93,11 @@ export function App({
       if (!key.return && flash) setFlash("");
 
       if (key.escape) {
+        if (filter.type !== "all") {
+          setFilter({ type: "all" });
+          setSelected(0);
+          return;
+        }
         exit();
         return;
       }
@@ -95,6 +112,16 @@ export function App({
       }
       if (dataDir && current && key.ctrl && input === "x") {
         setPendingDelete(current);
+        return;
+      }
+      if (key.ctrl && input === "f") {
+        setMode("filter");
+        return;
+      }
+      if (dataDir && current && key.ctrl && input === "s") {
+        const next = toggleFavorite(dataDir, current.app, current.action);
+        setFavorites(next);
+        setFlash(next.has(favKey(current.app, current.action)) ? "★ starred" : "☆ unstarred");
         return;
       }
       if (key.downArrow || (key.ctrl && input === "n")) {
@@ -136,6 +163,22 @@ export function App({
   );
 
   const existingTags = [...new Set(entries.flatMap((e) => e.tags ?? []))].sort();
+
+  if (mode === "filter") {
+    return (
+      <FilterPicker
+        apps={[...new Set(entries.map((e) => e.app))].sort()}
+        height={listHeight}
+        width={left}
+        onSelect={(f: Filter) => {
+          setFilter(f);
+          setSelected(0);
+          setMode("search");
+        }}
+        onCancel={() => setMode("search")}
+      />
+    );
+  }
 
   if (mode === "add" && dataDir) {
     return (
@@ -191,7 +234,16 @@ export function App({
 
   return (
     <Box flexDirection="column">
-      <SearchInput query={query} />
+      <SearchInput
+        query={query}
+        filterLabel={
+          filter.type === "app"
+            ? `(filter: ${filter.app})`
+            : filter.type === "favorites"
+              ? "(★ Favorites)"
+              : undefined
+        }
+      />
       <Box>
         <ResultList
           results={results}
@@ -199,6 +251,10 @@ export function App({
           query={query}
           height={listHeight}
           width={left}
+          favorites={favorites}
+          emptyMessage={
+            filter.type === "favorites" ? "No favorites yet — ⌃S stars an entry." : undefined
+          }
         />
         <PreviewPane entry={current} width={right} />
       </Box>
@@ -206,6 +262,7 @@ export function App({
         flash={flash}
         errorCount={errorCount}
         resultCount={results.length}
+        filterActive={filter.type !== "all"}
         confirm={
           pendingDelete ? `Delete '${pendingDelete.app}: ${pendingDelete.action}'?` : undefined
         }
