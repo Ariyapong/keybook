@@ -99,8 +99,14 @@ export function FilterPicker({
       <Text wrap="truncate-end" color="gray">
         ──────────────
       </Text>
+      {startApp > 0 ? (
+        <Text wrap="truncate-end" color="gray">
+          {" "}
+          ↑ more
+        </Text>
+      ) : null}
       {visibleApps.map((app, i) => row(app, startApp + i + 2))}
-      {matchedApps.length > bodyHeight ? (
+      {startApp + bodyHeight < matchedApps.length ? (
         <Text wrap="truncate-end" color="gray">
           {" "}
           ↓ more
