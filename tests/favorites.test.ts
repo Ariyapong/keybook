@@ -1,8 +1,14 @@
-import { mkdtempSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { favKey, loadFavorites, saveFavorites, toggleFavorite, favoritesPath } from "../src/data/favorites";
+import {
+  favKey,
+  favoritesPath,
+  loadFavorites,
+  saveFavorites,
+  toggleFavorite,
+} from "../src/data/favorites";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "kb-fav-"));
 
@@ -42,6 +48,9 @@ describe("favorites store", () => {
     saveFavorites(dir, new Set([favKey("VS Code", "Command Palette")]));
     expect(existsSync(`${favoritesPath(dir)}.tmp`)).toBe(false);
     const data = JSON.parse(readFileSync(favoritesPath(dir), "utf8"));
-    expect(data).toEqual({ version: 1, favorites: [{ app: "VS Code", action: "Command Palette" }] });
+    expect(data).toEqual({
+      version: 1,
+      favorites: [{ app: "VS Code", action: "Command Palette" }],
+    });
   });
 });

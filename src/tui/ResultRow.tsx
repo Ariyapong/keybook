@@ -1,7 +1,15 @@
 import { Box, Text } from "ink";
 import type { Entry } from "../data/types";
 
-export function ResultRow({ entry, selected }: { entry: Entry; selected: boolean }) {
+export function ResultRow({
+  entry,
+  selected,
+  favorite = false,
+}: {
+  entry: Entry;
+  selected: boolean;
+  favorite?: boolean;
+}) {
   const right = entry.keys ?? "recipe";
   // wrap="truncate-end" forces this row to stay on one line even if the
   // entry's app+action text is wider than the column. Without it, long
@@ -13,6 +21,7 @@ export function ResultRow({ entry, selected }: { entry: Entry; selected: boolean
       <Text wrap="truncate-end">
         <Text color={selected ? "cyan" : undefined} inverse={selected}>
           {selected ? "▸ " : "  "}
+          {favorite ? "★ " : "  "}
           {entry.app} · {entry.action}
         </Text>
         <Text color="gray"> {right}</Text>
