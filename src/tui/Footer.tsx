@@ -5,11 +5,13 @@ export function Footer({
   errorCount,
   resultCount,
   confirm,
+  filterActive = false,
 }: {
   flash: string;
   errorCount: number;
   resultCount: number;
   confirm?: string;
+  filterActive?: boolean;
 }) {
   // wrap="truncate-end" keeps the line within the frame even when wide-glyph
   // keycaps (⌘⌥⌃⇧⏎⎋⌫) render as 2 cells. A wrapped line overflows the height
@@ -28,10 +30,11 @@ export function Footer({
       </Box>
     );
   }
+  const quit = filterActive ? "⎋ clear filter" : "⎋ quit";
   return (
     <Box marginTop={1} justifyContent="space-between">
       <Text color="gray" wrap="truncate-end">
-        ↑↓ move ⏎ copy ⌃O add ⌃E edit ⌃X del ⎋ quit ⌃U clear ({resultCount})
+        {`↑↓ move ⏎ copy ⌃O add ⌃E edit ⌃X del ⌃F filter ⌃S star ${quit} ⌃U clear (${resultCount})`}
       </Text>
       {flash ? (
         <Text color="green">{flash}</Text>
