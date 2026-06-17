@@ -37,9 +37,9 @@ export function Footer({
         {`↑↓ move ⏎ copy ⌃O add ⌃E edit ⌃X del ⌃F filter ⌃S star ${quit} ⌃U clear (${resultCount})`}
       </Text>
       {flash ? (
-        <Text color="green">{flash}</Text>
+        <Text color="green" wrap="truncate-end">{flash}</Text>
       ) : errorCount > 0 ? (
-        <Text color="yellow">⚠ {errorCount} skipped — run `keybook check`</Text>
+        <Text color="yellow" wrap="truncate-end">⚠ {errorCount} skipped — run `keybook check`</Text>
       ) : (
         <Text> </Text>
       )}

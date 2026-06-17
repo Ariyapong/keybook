@@ -1,9 +1,31 @@
+import { render as inkRender } from "ink";
 import { render } from "ink-testing-library";
+import { EventEmitter } from "node:events";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import type { Entry } from "../src/data/types";
 import { Footer } from "../src/tui/Footer";
 import { PreviewPane } from "../src/tui/PreviewPane";
 import { ResultRow } from "../src/tui/ResultRow";
+
+/** Render at a wider frame so long right-side warnings fit without wrapping. */
+function renderWide(node: ReactElement, columns = 150) {
+  class WideStdout extends EventEmitter {
+    get columns() {
+      return columns;
+    }
+    frames: string[] = [];
+    _last: string | undefined;
+    write = (frame: string) => {
+      this.frames.push(frame);
+      this._last = frame;
+    };
+    lastFrame = () => this._last;
+  }
+  const stdout = new WideStdout();
+  inkRender(node, { stdout: stdout as unknown as NodeJS.WriteStream, debug: true, exitOnCtrlC: false, patchConsole: false });
+  return { lastFrame: stdout.lastFrame };
+}
 
 describe("ResultRow", () => {
   it("shows app, action, and the keys", () => {
@@ -55,7 +77,10 @@ describe("Footer", () => {
     expect(lastFrame()).toContain("✓ copied!");
   });
   it("shows the skipped-entries warning when there are load errors", () => {
-    const { lastFrame } = render(<Footer flash="" errorCount={2} resultCount={3} />);
+    // Render at a wider frame so the right-side warning text is not truncated
+    // before 'keybook check' — at 100 cols the longer hint leaves only ~22 cols
+    // for the warning, which is not enough for the full 35-col warning text.
+    const { lastFrame } = renderWide(<Footer flash="" errorCount={2} resultCount={3} />);
     expect(lastFrame()).toContain("2");
     expect(lastFrame()).toContain("keybook check");
   });
