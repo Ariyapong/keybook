@@ -129,7 +129,7 @@ always works.
     `exit 1`. (`ruby -c "$FORMULA"` is optional defense-in-depth; not required since
     the step-7 exactly-once guard already protects formula shape.)
 11. **Confirm.** Print `git -C "$TAP_DIR" diff -- Formula/keybook.rb`, then prompt
-    `Commit and push tap? [y/N]`.
+    `Commit and push tap to <version>? [y/N]`.
     - **Non-TTY stdin** (CI, piped): treat as declined — restore the backup and
       `exit 0`. Never auto-push. (A `--yes` flag is out of scope.)
     - `y` → `git -C "$TAP_DIR" add Formula/keybook.rb`,
