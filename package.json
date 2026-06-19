@@ -30,7 +30,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "bump-tap": "./scripts/bump-tap.sh"
   },
   "dependencies": {
     "commander": "^12.1.0",
