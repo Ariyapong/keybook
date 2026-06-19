@@ -68,7 +68,7 @@ Examples:
   scripts/bump-tap.sh                    # bump to package.json version
   scripts/bump-tap.sh 0.7.0
   scripts/bump-tap.sh 0.7.0 --dry-run
-  pnpm bump-tap -- 0.7.0 --dry-run
+  pnpm bump-tap 0.7.0 --dry-run
 EOF
 }
 
@@ -115,10 +115,10 @@ Run:
 ```
 Expected: first two print usage and `exit=0`; the third prints `error: unknown flag: --bogus` + usage and `exit=2`.
 
-- [ ] **Step 5: Verify pnpm forwards args through `--`**
+- [ ] **Step 5: Verify pnpm forwards args (NO `--` separator)**
 
-Run: `pnpm bump-tap -- --help; echo "exit=$?"`
-Expected: prints usage, `exit=0` (confirms pnpm 10 forwards `--help` to the script; if it does not, the alias/docs must switch to direct `scripts/bump-tap.sh` invocation only — note the result).
+Run: `pnpm bump-tap --help; echo "exit=$?"` and `pnpm bump-tap --dry-run ZZZ; echo "exit=$?"`
+Expected: the first prints usage, `exit=0`; the second parses cleanly (`exit=0`). **Verified pnpm 10 behavior:** pnpm forwards args without a `--`, and passing `--` is harmful — `pnpm bump-tap -- --dry-run ZZZ` makes pnpm forward the literal `--`, ending option parsing so `--dry-run` becomes a rejected positional (`exit=2`). Document the no-`--` form only.
 
 - [ ] **Step 6: Commit**
 
@@ -392,7 +392,7 @@ Run: read `~/.claude/projects/-Users-tony-ariya-Work-MyProjects-keybook/memory/k
 
 - [ ] **Step 2: Replace the manual bump step**
 
-Edit the runbook so the formula-bump step reads: after `npm publish`, run `pnpm bump-tap -- <version>` (or `scripts/bump-tap.sh <version>`) from the keybook repo — it resolves the tarball, computes sha256, rewrites url+sha256, shows the diff, and on `y` commits + pushes the tap. Keep the manual steps as a fallback note. Add a `[[keybook-status]]` link if not present.
+Edit the runbook so the formula-bump step reads: after `npm publish`, run `pnpm bump-tap <version>` (or `scripts/bump-tap.sh <version>`) from the keybook repo — it resolves the tarball, computes sha256, rewrites url+sha256, shows the diff, and on `y` commits + pushes the tap. Keep the manual steps as a fallback note. Add a `[[keybook-status]]` link if not present.
 
 - [ ] **Step 3: No git commit** — the memory file lives outside the repo. Confirm with `git status` that nothing in the repo changed in this task.
 

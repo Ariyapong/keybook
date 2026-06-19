@@ -62,11 +62,13 @@ bare `--` ends option parsing; any unknown `--flag` is a usage error. This ensur
 `--dry-run` is never mistaken for the version.
 
 **Convenience alias.** Add to `package.json` scripts: `"bump-tap":
-"./scripts/bump-tap.sh"`. Because args to a pnpm script must cross the `--`
-separator, the documented invocations are `pnpm bump-tap -- <version>`,
-`pnpm bump-tap -- --dry-run`, and `pnpm bump-tap -- <version> --dry-run`. The plan
-must verify pnpm 10 forwards both the positional version and `--dry-run` through
-`--` before finalizing the docs; direct `scripts/bump-tap.sh …` always works.
+"./scripts/bump-tap.sh"`. **Verified against pnpm 10:** pnpm forwards args to the
+script *without* needing a `--` separator — and passing one is harmful, because
+pnpm forwards the literal `--` through to the script, where it ends option parsing
+and turns a following `--dry-run` into a rejected positional. The documented
+invocations are therefore `pnpm bump-tap <version>`, `pnpm bump-tap <version>
+--dry-run`, and `pnpm bump-tap --help` (no `--`). Direct `scripts/bump-tap.sh …`
+always works.
 
 ## Behavior / flow
 
@@ -176,5 +178,5 @@ location, and the field-replacement shape only.
 ## Docs
 
 - Update the `keybook-homebrew-release.md` memory runbook to reference
-  `pnpm bump-tap -- <version>` (or `scripts/bump-tap.sh <version>`) as the
+  `pnpm bump-tap <version>` (or `scripts/bump-tap.sh <version>`) as the
   formula-bump step, replacing the manual url+sha256 instructions.

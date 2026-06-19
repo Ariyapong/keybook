@@ -25,7 +25,7 @@ Examples:
   scripts/bump-tap.sh                    # bump to package.json version
   scripts/bump-tap.sh 0.7.0
   scripts/bump-tap.sh 0.7.0 --dry-run
-  pnpm bump-tap -- 0.7.0 --dry-run
+  pnpm bump-tap 0.7.0 --dry-run
 EOF
 }
 
