@@ -134,3 +134,53 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "(dry run — no changes made)"
   exit 0
 fi
+
+# --- preconditions for mutation (explicit form: a && chain short-circuits under set -e) ---
+if ! git -C "$TAP_DIR" diff --quiet || ! git -C "$TAP_DIR" diff --cached --quiet; then
+  echo "error: tap working tree is dirty; commit or stash in $TAP_DIR first" >&2
+  exit 1
+fi
+default_branch="$(git -C "$TAP_DIR" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)"
+current_branch="$(git -C "$TAP_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+if [ -n "$default_branch" ] && [ -n "$current_branch" ] && [ "$current_branch" != "$default_branch" ]; then
+  echo "warning: tap is on '$current_branch', not default '$default_branch'" >&2
+fi
+
+# --- apply with backup, then validate; revert on failure ---
+BACKUP="$WORKDIR/keybook.rb.bak"
+cp "$FORMULA" "$BACKUP"
+cp "$PROPOSED" "$FORMULA"
+
+if ! style_out="$(brew style "$TAP/keybook" 2>&1)"; then
+  echo "error: brew style failed on the edited formula — reverting:" >&2
+  echo "$style_out" >&2
+  cp "$BACKUP" "$FORMULA"
+  exit 1
+fi
+
+# --- confirm, then commit + push; any non-yes (incl. non-TTY) reverts ---
+echo
+git -C "$TAP_DIR" --no-pager diff -- "$FORMULA_REL"
+echo
+
+if [ ! -t 0 ]; then
+  echo "stdin is not a TTY — declining (no commit/push); reverting edit."
+  cp "$BACKUP" "$FORMULA"
+  exit 0
+fi
+
+printf 'Commit and push tap to %s? [y/N] ' "$VERSION"
+if ! read -r reply; then reply=""; fi
+case "$reply" in
+  y|Y|yes|YES)
+    git -C "$TAP_DIR" add "$FORMULA_REL"
+    git -C "$TAP_DIR" commit -m "chore(formula): keybook $VERSION"
+    git -C "$TAP_DIR" push
+    echo "pushed: $(git -C "$TAP_DIR" log -1 --format='%h %s')"
+    ;;
+  *)
+    echo "declined — reverting edit, no changes made."
+    cp "$BACKUP" "$FORMULA"
+    exit 0
+    ;;
+esac
