@@ -46,6 +46,7 @@ export function moveStep(steps: string[], from: number, to: number): string[] {
   }
   const next = [...steps];
   const [moved] = next.splice(from, 1);
+  if (moved === undefined) return steps; // unreachable given the range guard; satisfies noUncheckedIndexedAccess
   next.splice(to, 0, moved);
   return next;
 }
