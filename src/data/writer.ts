@@ -263,3 +263,40 @@ export function editEntry(
 
   return { ok: true, file: path, created: false, lines: [`✓ updated '${clean.action}'`] };
 }
+
+export function moveEntry(
+  dir: string,
+  sourceFile: string,
+  index: number,
+  expectedAction: string,
+  targetApp: string,
+  entry: EntryInput,
+): AddResult {
+  // Defensive self-delete guard — do NOT trust the caller's app-change check.
+  // If the target resolves to the source file, this is an in-place edit, not a
+  // move; appending then deleting-by-index would corrupt the file.
+  if (resolveTargetFile(dir, targetApp).file === join(dir, sourceFile)) {
+    return editEntry(dir, sourceFile, index, entry, expectedAction);
+  }
+
+  const addRes = addEntry(dir, targetApp, entry);
+  if (!addRes.ok) return addRes; // source untouched — safe abort
+
+  const delRes = deleteEntry(dir, sourceFile, index, expectedAction);
+  if (!delRes.ok) {
+    // add succeeded, delete failed (drift / fs): keep both, warn. Never lose data.
+    return {
+      ok: true,
+      file: addRes.file,
+      created: addRes.created,
+      lines: [`⚠ moved to ${targetApp}; original still in ${sourceFile} — remove it manually`],
+    };
+  }
+
+  return {
+    ok: true,
+    file: addRes.file,
+    created: addRes.created,
+    lines: [`✓ moved '${entry.action}' → ${targetApp}`],
+  };
+}
