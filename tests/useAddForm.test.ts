@@ -106,4 +106,7 @@ describe("deleteStep", () => {
     expect(deleteStep(["a", "b"], 5)).toEqual(["a", "b"]);
     expect(deleteStep(["a", "b"], -1)).toEqual(["a", "b"]);
   });
+  it("is a no-op on an empty array", () => {
+    expect(deleteStep([], 0)).toEqual([]);
+  });
 });

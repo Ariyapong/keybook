@@ -76,12 +76,12 @@ export function FormFields({
         <Box flexDirection="column">
           <Text color={focused === 3 ? "cyan" : "gray"}>Steps</Text>
           <StepsBuilder
-          steps={draft.steps}
-          line={draft.stepLine}
-          active={focused === 3}
-          cursor={stepCursor}
-          grabbed={grabbed}
-        />
+            steps={draft.steps}
+            line={draft.stepLine}
+            active={focused === 3}
+            cursor={stepCursor}
+            grabbed={grabbed}
+          />
         </Box>
       )}
       {/* 4: tags */}
