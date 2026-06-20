@@ -24,7 +24,7 @@ export interface AddEntryFormProps {
   onCancel: () => void;
   resolveTarget?: (app: string) => { file: string; created: boolean };
   initial?: import("./useAddForm").Draft;
-  lockedApp?: string;
+  initialFocus?: number;
   title?: string;
 }
 
@@ -36,14 +36,17 @@ export function AddEntryForm({
   onCancel,
   resolveTarget,
   initial,
-  lockedApp,
+  initialFocus,
   title,
 }: AddEntryFormProps) {
   // Start synced to the highlighted choice (appIndex 0) so the draft is in sync
   // even if the user advances past field 0 without pressing ↑/↓.
   const { draft, update, setDraft } = useAddForm(initial ?? { app: apps[0] ?? "" });
-  const [focused, setFocused] = useState(lockedApp ? 1 : 0);
-  const [appIndex, setAppIndex] = useState(0);
+  const [focused, setFocused] = useState(initialFocus ?? 0);
+  const [appIndex, setAppIndex] = useState(() => {
+    const i = apps.indexOf(initial?.app ?? apps[0] ?? "");
+    return i >= 0 ? i : 0;
+  });
   const [screen, setScreen] = useState<"form" | "review">("form");
   const [hint, setHint] = useState("");
   const [writeError, setWriteError] = useState("");
@@ -89,7 +92,7 @@ export function AddEntryForm({
 
     if (key.escape) return onCancel();
     if (key.ctrl && input === "n") return setFocused((f) => Math.min(f + 1, LAST_FIELD));
-    if (key.ctrl && input === "p") return setFocused((f) => Math.max(f - 1, lockedApp ? 1 : 0));
+    if (key.ctrl && input === "p") return setFocused((f) => Math.max(f - 1, 0));
 
     // Field 0: app selection. ↑/↓ move the highlight AND sync the draft so it
     // always tracks the highlighted choice (no appIndex/draft divergence).
@@ -191,7 +194,6 @@ export function AddEntryForm({
           appIndex={appIndex}
           focused={focused}
           existingTags={existingTags}
-          lockedApp={lockedApp}
         />
       </Box>
       <Box marginTop={1} flexDirection="column">

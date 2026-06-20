@@ -205,7 +205,7 @@ export function App({
       <AddEntryForm
         apps={listApps(dataDir)}
         existingTags={existingTags}
-        lockedApp={editTarget.app}
+        initialFocus={1}
         initial={entryToDraft(editTarget.app, editTarget)}
         title={`Edit entry — ${editTarget.app}`}
         // Edit writes to the entry's exact source file (editTarget.file). Resolve

@@ -135,12 +135,12 @@ describe("AddEntryForm", () => {
     expect(out).not.toContain("at least one step");
   });
 
-  it("pre-fills and locks the app in edit mode", async () => {
+  it("pre-fills the entry and starts focus on Type in edit mode (app unlocked)", async () => {
     const initial = entryToDraft("Fork", { action: "Push", keys: "⇧⌘P" });
     const { lastFrame } = render(
       <AddEntryForm
         apps={["Fork", "Zed"]}
-        lockedApp="Fork"
+        initialFocus={1}
         initial={initial}
         title="Edit entry — Fork"
         onSubmit={vi.fn(() => ok)}
@@ -151,18 +151,19 @@ describe("AddEntryForm", () => {
     await tick();
     const out = lastFrame() ?? "";
     expect(out).toContain("Edit entry — Fork");
-    expect(out).toContain("(locked)");
     expect(out).toContain("Push");
     expect(out).toContain("⇧⌘P");
+    expect(out).not.toContain("(locked)");
+    expect(out).not.toContain("(↑/↓)"); // focus is on Type, not App
   });
 
-  it("submits the locked app and edited action on confirm", async () => {
+  it("submits the app and edited action on confirm in edit mode", async () => {
     const onSubmit = vi.fn(() => ok);
     const initial = entryToDraft("Fork", { action: "Push", keys: "⇧⌘P" });
     const { stdin } = render(
       <AddEntryForm
         apps={["Fork"]}
-        lockedApp="Fork"
+        initialFocus={1}
         initial={initial}
         onSubmit={onSubmit}
         onComplete={vi.fn()}
@@ -172,7 +173,7 @@ describe("AddEntryForm", () => {
     await tick();
     stdin.write("\x0e"); // ⌃N: Type(1) -> Action(2)
     await tick();
-    stdin.write(" (force)"); // append to the pre-filled "Push"
+    stdin.write(" (force)");
     await tick();
     stdin.write("\r"); // review
     await tick();

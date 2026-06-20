@@ -27,15 +27,15 @@ describe("FormFields", () => {
     expect(lastFrame() ?? "").toContain("push");
   });
 
-  it("renders the app field locked (no picker) when lockedApp is set", () => {
+  it("renders the app field as a chooser (no lock) with the picker affordance", () => {
     const draft = { ...emptyDraft, app: "Fork", type: "shortcut" as const };
     const { lastFrame } = render(
-      <FormFields draft={draft} apps={["Fork", "Zed"]} appIndex={0} focused={1} lockedApp="Fork" />,
+      <FormFields draft={draft} apps={["Fork", "Zed"]} appIndex={0} focused={0} />,
     );
     const out = lastFrame() ?? "";
-    expect(out).toContain("(locked)");
-    expect(out).not.toContain("Create new app");
-    expect(out).not.toContain("(↑/↓)");
+    expect(out).toContain("Fork");
+    expect(out).toContain("(↑/↓)");
+    expect(out).not.toContain("(locked)");
   });
 });
 

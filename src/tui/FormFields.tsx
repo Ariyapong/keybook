@@ -21,14 +21,12 @@ export function FormFields({
   appIndex,
   focused,
   existingTags,
-  lockedApp,
 }: {
   draft: Draft;
   apps: string[];
   appIndex: number;
   focused: number;
   existingTags?: string[];
-  lockedApp?: string;
 }) {
   const appChoices = [...apps, "Create new app…"];
   return (
@@ -36,9 +34,7 @@ export function FormFields({
       {/* 0: app */}
       <Box>
         <Text color={focused === 0 ? "cyan" : "gray"}>{"App".padEnd(8)}</Text>
-        {lockedApp ? (
-          <Text color="gray">{`${lockedApp}  (locked)`}</Text>
-        ) : draft.creatingApp ? (
+        {draft.creatingApp ? (
           <>
             <Text>{draft.newApp}</Text>
             {focused === 0 ? <Text inverse> </Text> : null}
