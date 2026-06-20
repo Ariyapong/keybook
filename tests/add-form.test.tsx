@@ -213,4 +213,79 @@ describe("AddEntryForm", () => {
     expect(out).toContain("Action is required"); // the error is shown
     expect(out).toContain("⌃N"); // and the navigation hint is still visible
   });
+
+  it("reorders recipe steps with grab-and-move and writes the new order", async () => {
+    const onSubmit = vi.fn(() => ok);
+    const initial = entryToDraft("Finder", { action: "Do", steps: ["one", "two", "three"] });
+    const { stdin } = render(
+      <AddEntryForm apps={["Finder"]} initialFocus={3} initial={initial}
+        onSubmit={onSubmit} onComplete={vi.fn()} onCancel={vi.fn()} />,
+    );
+    await tick();
+    stdin.write("\x1b[A"); // ↑ append-line -> select "three"
+    await tick();
+    stdin.write(" "); // grab
+    await tick();
+    stdin.write("\x1b[A"); // move up -> ["one","three","two"]
+    await tick();
+    stdin.write("\x1b[A"); // move up -> ["three","one","two"]
+    await tick();
+    stdin.write(" "); // drop
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> leave Steps to Tags
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm
+    await tick();
+    expect(onSubmit).toHaveBeenCalledWith(
+      "Finder",
+      expect.objectContaining({ steps: ["three", "one", "two"] }),
+    );
+  });
+
+  it("deletes the selected recipe step with ⌫", async () => {
+    const onSubmit = vi.fn(() => ok);
+    const initial = entryToDraft("Finder", { action: "Do", steps: ["one", "two", "three"] });
+    const { stdin } = render(
+      <AddEntryForm apps={["Finder"]} initialFocus={3} initial={initial}
+        onSubmit={onSubmit} onComplete={vi.fn()} onCancel={vi.fn()} />,
+    );
+    await tick();
+    stdin.write("\x1b[A"); // ↑ -> select "three"
+    await tick();
+    stdin.write("\x7f"); // ⌫ delete selected -> ["one","two"], cursor -> append line
+    await tick();
+    stdin.write("\x0e"); // ⌃N -> Tags
+    await tick();
+    stdin.write("\r"); // review
+    await tick();
+    stdin.write("\r"); // confirm
+    await tick();
+    expect(onSubmit).toHaveBeenCalledWith(
+      "Finder",
+      expect.objectContaining({ steps: ["one", "two"] }),
+    );
+  });
+
+  it("esc while a step is grabbed drops the grab without cancelling the form", async () => {
+    const onCancel = vi.fn();
+    const initial = entryToDraft("Finder", { action: "Do", steps: ["one", "two"] });
+    const { stdin, lastFrame } = render(
+      <AddEntryForm apps={["Finder"]} initialFocus={3} initial={initial}
+        onSubmit={vi.fn(() => ok)} onComplete={vi.fn()} onCancel={onCancel} />,
+    );
+    await tick();
+    stdin.write("\x1b[A"); // select "two"
+    await tick();
+    stdin.write(" "); // grab
+    await tick();
+    stdin.write("\x1b"); // esc -> drop grab, NOT cancel
+    await tick();
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(lastFrame() ?? "").toContain("two");
+    stdin.write("\x1b"); // esc again (not grabbed) -> cancels
+    await tick();
+    expect(onCancel).toHaveBeenCalled();
+  });
 });

@@ -1,13 +1,15 @@
 import { basename } from "node:path";
 import { Box, Text, useInput } from "ink";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AddResult, EntryInput } from "../data/types";
 import { FormFields } from "./FormFields";
 import { ReviewScreen } from "./ReviewScreen";
 import {
   type EntryType,
+  deleteStep,
   draftToEntryInput,
   flushStep,
+  moveStep,
   resolvedApp,
   useAddForm,
   validateDraft,
@@ -43,6 +45,8 @@ export function AddEntryForm({
   // even if the user advances past field 0 without pressing ↑/↓.
   const { draft, update, setDraft } = useAddForm(initial ?? { app: apps[0] ?? "" });
   const [focused, setFocused] = useState(initialFocus ?? 0);
+  const [stepCursor, setStepCursor] = useState(initial?.steps?.length ?? 0);
+  const [grabbed, setGrabbed] = useState(false);
   const [appIndex, setAppIndex] = useState(() => {
     const i = apps.indexOf(initial?.app ?? apps[0] ?? "");
     return i >= 0 ? i : 0;
@@ -50,6 +54,13 @@ export function AddEntryForm({
   const [screen, setScreen] = useState<"form" | "review">("form");
   const [hint, setHint] = useState("");
   const [writeError, setWriteError] = useState("");
+
+  useEffect(() => {
+    if (!(focused === 3 && draft.type === "recipe")) {
+      setGrabbed(false);
+      setStepCursor(draft.steps.length);
+    }
+  }, [focused, draft.type, draft.steps.length]);
 
   const appChoices = [...apps, "Create new app…"];
 
@@ -90,6 +101,7 @@ export function AddEntryForm({
       return;
     }
 
+    if (grabbed && key.escape) return setGrabbed(false);
     if (key.escape) return onCancel();
     if (key.ctrl && input === "n") return setFocused((f) => Math.min(f + 1, LAST_FIELD));
     if (key.ctrl && input === "p") return setFocused((f) => Math.max(f - 1, 0));
@@ -135,19 +147,55 @@ export function AddEntryForm({
       return;
     }
 
-    // Field 3 recipe: steps builder
+    // Field 3 recipe: steps builder with grab-and-move reorder.
     if (focused === 3 && draft.type === "recipe") {
-      if (key.return) {
-        if (draft.stepLine.trim())
-          update({ steps: [...draft.steps, draft.stepLine.trim()], stepLine: "" });
+      const steps = draft.steps;
+      const onAppendLine = stepCursor >= steps.length;
+
+      if (grabbed) {
+        if (key.upArrow && stepCursor > 0) {
+          update({ steps: moveStep(steps, stepCursor, stepCursor - 1) });
+          return setStepCursor(stepCursor - 1);
+        }
+        if (key.downArrow && stepCursor < steps.length - 1) {
+          update({ steps: moveStep(steps, stepCursor, stepCursor + 1) });
+          return setStepCursor(stepCursor + 1);
+        }
+        if (key.return || input === " " || key.escape) return setGrabbed(false);
+        return; // swallow everything else while grabbed
+      }
+
+      if (onAppendLine) {
+        if (key.return) {
+          if (draft.stepLine.trim()) {
+            update({ steps: [...steps, draft.stepLine.trim()], stepLine: "" });
+            setStepCursor(steps.length + 1); // stay on the NEW append line
+          }
+          return;
+        }
+        if (key.backspace || key.delete) {
+          if (draft.stepLine) return update({ stepLine: draft.stepLine.slice(0, -1) });
+          if (steps.length) return setStepCursor(steps.length - 1); // select last (no delete)
+          return;
+        }
+        if (key.upArrow) {
+          if (steps.length) return setStepCursor(steps.length - 1);
+          return;
+        }
+        if (input && !key.ctrl && !key.meta) return update({ stepLine: draft.stepLine + input });
         return;
       }
+
+      // cursor on an existing step
+      if (key.upArrow) return setStepCursor(Math.max(0, stepCursor - 1));
+      if (key.downArrow) return setStepCursor(stepCursor + 1); // steps.length -> append line
+      if (key.return || input === " ") return setGrabbed(true); // pick it up
       if (key.backspace || key.delete) {
-        if (draft.stepLine) return update({ stepLine: draft.stepLine.slice(0, -1) });
-        return update({ steps: draft.steps.slice(0, -1) });
+        const next = deleteStep(steps, stepCursor);
+        update({ steps: next });
+        return setStepCursor(Math.min(stepCursor, next.length));
       }
-      if (input && !key.ctrl && !key.meta) return update({ stepLine: draft.stepLine + input });
-      return;
+      return; // printable ignored on a step (mid-string edit out of scope)
     }
 
     // Text fields: 2 action, 3 keys/command, 4 tags, 5 notes
@@ -194,6 +242,8 @@ export function AddEntryForm({
           appIndex={appIndex}
           focused={focused}
           existingTags={existingTags}
+          stepCursor={stepCursor}
+          grabbed={grabbed}
         />
       </Box>
       <Box marginTop={1} flexDirection="column">

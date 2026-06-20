@@ -21,12 +21,16 @@ export function FormFields({
   appIndex,
   focused,
   existingTags,
+  stepCursor,
+  grabbed,
 }: {
   draft: Draft;
   apps: string[];
   appIndex: number;
   focused: number;
   existingTags?: string[];
+  stepCursor?: number;
+  grabbed?: boolean;
 }) {
   const appChoices = [...apps, "Create new app…"];
   return (
@@ -71,7 +75,13 @@ export function FormFields({
       ) : (
         <Box flexDirection="column">
           <Text color={focused === 3 ? "cyan" : "gray"}>Steps</Text>
-          <StepsBuilder steps={draft.steps} line={draft.stepLine} active={focused === 3} />
+          <StepsBuilder
+          steps={draft.steps}
+          line={draft.stepLine}
+          active={focused === 3}
+          cursor={stepCursor}
+          grabbed={grabbed}
+        />
         </Box>
       )}
       {/* 4: tags */}
