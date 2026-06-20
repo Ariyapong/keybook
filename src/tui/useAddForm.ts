@@ -39,6 +39,23 @@ export function parseTags(raw: string): string[] {
     .filter(Boolean);
 }
 
+/** Move the step at `from` to position `to`, returning a NEW array. No-op if out of range or from===to. */
+export function moveStep(steps: string[], from: number, to: number): string[] {
+  if (from < 0 || from >= steps.length || to < 0 || to >= steps.length || from === to) {
+    return steps;
+  }
+  const next = [...steps];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return next;
+}
+
+/** Remove the step at `i`, returning a NEW array. No-op if out of range. */
+export function deleteStep(steps: string[], i: number): string[] {
+  if (i < 0 || i >= steps.length) return steps;
+  return steps.filter((_, idx) => idx !== i);
+}
+
 export function resolvedApp(d: Draft): string {
   return (d.creatingApp ? d.newApp : d.app).trim();
 }

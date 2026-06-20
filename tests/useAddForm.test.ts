@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   type Draft,
+  deleteStep,
   draftToEntryInput,
   emptyDraft,
   entryToDraft,
+  moveStep,
   parseTags,
   resolvedApp,
   validateDraft,
@@ -78,5 +80,30 @@ describe("entryToDraft", () => {
   it("preserves an entry that has BOTH keys and command", () => {
     const e = { action: "Both", keys: "⌘K", command: "clear" };
     expect(draftToEntryInput(entryToDraft("X", e))).toEqual(e);
+  });
+});
+
+describe("moveStep", () => {
+  it("moves a step up and down", () => {
+    expect(moveStep(["a", "b", "c"], 1, 0)).toEqual(["b", "a", "c"]);
+    expect(moveStep(["a", "b", "c"], 1, 2)).toEqual(["a", "c", "b"]);
+  });
+  it("moves across multiple positions", () => {
+    expect(moveStep(["a", "b", "c", "d"], 0, 3)).toEqual(["b", "c", "d", "a"]);
+  });
+  it("is a no-op at the ends, for same index, and out of range", () => {
+    expect(moveStep(["a", "b"], 0, -1)).toEqual(["a", "b"]);
+    expect(moveStep(["a", "b"], 1, 2)).toEqual(["a", "b"]);
+    expect(moveStep(["a", "b"], 0, 0)).toEqual(["a", "b"]);
+  });
+});
+
+describe("deleteStep", () => {
+  it("removes the step at the index", () => {
+    expect(deleteStep(["a", "b", "c"], 1)).toEqual(["a", "c"]);
+  });
+  it("is a no-op for out-of-range indices", () => {
+    expect(deleteStep(["a", "b"], 5)).toEqual(["a", "b"]);
+    expect(deleteStep(["a", "b"], -1)).toEqual(["a", "b"]);
   });
 });
