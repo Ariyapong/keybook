@@ -4,7 +4,7 @@ import { copyToClipboard } from "../clipboard";
 import { favKey, loadFavorites, toggleFavorite } from "../data/favorites";
 import { loadEntries } from "../data/loader";
 import type { AddResult, Entry, EntryInput, LoadedEntry } from "../data/types";
-import { addEntry, deleteEntry, editEntry, listApps, resolveTargetFile } from "../data/writer";
+import { addEntry, deleteEntry, editEntry, listApps, moveEntry, resolveTargetFile } from "../data/writer";
 import { search } from "../search";
 import { AddEntryForm } from "./AddEntryForm";
 import { type Filter, FilterPicker } from "./FilterPicker";
@@ -15,6 +15,8 @@ import { SearchInput } from "./SearchInput";
 import { deleteWordBack } from "./input";
 import { columnWidths, visibleListHeight } from "./layout";
 import { entryToDraft } from "./useAddForm";
+
+const sameApp = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 export interface AppProps {
   entries: LoadedEntry[];
@@ -208,12 +210,15 @@ export function App({
         initialFocus={1}
         initial={entryToDraft(editTarget.app, editTarget)}
         title={`Edit entry — ${editTarget.app}`}
-        // Edit writes to the entry's exact source file (editTarget.file). Resolve
-        // the review-screen target to that file directly rather than re-resolving
-        // by app name, which would show the wrong file if two files share an app.
-        resolveTarget={() => ({ file: editTarget.file, created: false })}
-        onSubmit={(_app: string, entry: EntryInput): AddResult =>
-          editEntry(dataDir, editTarget.file, editTarget.index, entry, editTarget.action)
+        resolveTarget={(app: string) =>
+          sameApp(app, editTarget.app)
+            ? { file: editTarget.file, created: false }
+            : resolveTargetFile(dataDir, app)
+        }
+        onSubmit={(app: string, entry: EntryInput): AddResult =>
+          sameApp(app, editTarget.app)
+            ? editEntry(dataDir, editTarget.file, editTarget.index, entry, editTarget.action)
+            : moveEntry(dataDir, editTarget.file, editTarget.index, editTarget.action, app, entry)
         }
         onComplete={(result: AddResult) => {
           if (result.ok) {
