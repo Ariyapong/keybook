@@ -2,7 +2,14 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadEntries } from "../src/data/loader";
-import { addEntry, deleteEntry, editEntry, listApps, moveEntry, resolveTargetFile } from "../src/data/writer";
+import {
+  addEntry,
+  deleteEntry,
+  editEntry,
+  listApps,
+  moveEntry,
+  resolveTargetFile,
+} from "../src/data/writer";
 import { tmpDataDir } from "./_helpers";
 
 const FORK = `app: Fork
@@ -241,7 +248,9 @@ entries:
   });
 
   it("moves to a brand-new app, creating the file and unlinking an emptied source", () => {
-    const dir = tmpDataDir({ "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n' });
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
     const res = moveEntry(dir, "fork.yaml", 0, "Pull", "Slack", { action: "Pull", keys: "⇧⌘L" });
     expect(res.ok).toBe(true);
     expect(res.created).toBe(true);
@@ -251,7 +260,10 @@ entries:
   });
 
   it("aborts with the source untouched when the target add is invalid", () => {
-    const dir = tmpDataDir({ "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n', "git.yaml": GIT });
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+      "git.yaml": GIT,
+    });
     const before = readFileSync(join(dir, "fork.yaml"), "utf8");
     const res = moveEntry(dir, "fork.yaml", 0, "Pull", "Git", { action: "Pull" }); // no body -> reject
     expect(res.ok).toBe(false);
@@ -259,7 +271,10 @@ entries:
   });
 
   it("keeps both copies and warns when the source delete drifts", () => {
-    const dir = tmpDataDir({ "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n', "git.yaml": GIT });
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+      "git.yaml": GIT,
+    });
     const res = moveEntry(dir, "fork.yaml", 0, "WRONG", "Git", { action: "Pull", keys: "⇧⌘L" });
     expect(res.ok).toBe(true);
     expect(res.lines.join(" ")).toMatch(/still in/);
@@ -267,8 +282,13 @@ entries:
   });
 
   it("delegates to an in-place edit when the target resolves to the source file", () => {
-    const dir = tmpDataDir({ "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n' });
-    const res = moveEntry(dir, "fork.yaml", 0, "Pull", "fork", { action: "Pull (rebase)", keys: "⇧⌘L" });
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const res = moveEntry(dir, "fork.yaml", 0, "Pull", "fork", {
+      action: "Pull (rebase)",
+      keys: "⇧⌘L",
+    });
     expect(res.ok).toBe(true);
     const { entries } = loadEntries(dir);
     expect(entries.map((e) => e.action)).toEqual(["Pull (rebase)"]); // edited in place, not duplicated

@@ -218,8 +218,14 @@ describe("AddEntryForm", () => {
     const onSubmit = vi.fn(() => ok);
     const initial = entryToDraft("Finder", { action: "Do", steps: ["one", "two", "three"] });
     const { stdin } = render(
-      <AddEntryForm apps={["Finder"]} initialFocus={3} initial={initial}
-        onSubmit={onSubmit} onComplete={vi.fn()} onCancel={vi.fn()} />,
+      <AddEntryForm
+        apps={["Finder"]}
+        initialFocus={3}
+        initial={initial}
+        onSubmit={onSubmit}
+        onComplete={vi.fn()}
+        onCancel={vi.fn()}
+      />,
     );
     await tick();
     stdin.write("\x1b[A"); // ↑ append-line -> select "three"
@@ -248,8 +254,14 @@ describe("AddEntryForm", () => {
     const onSubmit = vi.fn(() => ok);
     const initial = entryToDraft("Finder", { action: "Do", steps: ["one", "two", "three"] });
     const { stdin } = render(
-      <AddEntryForm apps={["Finder"]} initialFocus={3} initial={initial}
-        onSubmit={onSubmit} onComplete={vi.fn()} onCancel={vi.fn()} />,
+      <AddEntryForm
+        apps={["Finder"]}
+        initialFocus={3}
+        initial={initial}
+        onSubmit={onSubmit}
+        onComplete={vi.fn()}
+        onCancel={vi.fn()}
+      />,
     );
     await tick();
     stdin.write("\x1b[A"); // ↑ -> select "three"
@@ -272,8 +284,14 @@ describe("AddEntryForm", () => {
     const onCancel = vi.fn();
     const initial = entryToDraft("Finder", { action: "Do", steps: ["one", "two"] });
     const { stdin, lastFrame } = render(
-      <AddEntryForm apps={["Finder"]} initialFocus={3} initial={initial}
-        onSubmit={vi.fn(() => ok)} onComplete={vi.fn()} onCancel={onCancel} />,
+      <AddEntryForm
+        apps={["Finder"]}
+        initialFocus={3}
+        initial={initial}
+        onSubmit={vi.fn(() => ok)}
+        onComplete={vi.fn()}
+        onCancel={onCancel}
+      />,
     );
     await tick();
     stdin.write("\x1b[A"); // select "two"

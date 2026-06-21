@@ -4,7 +4,14 @@ import { copyToClipboard } from "../clipboard";
 import { favKey, loadFavorites, toggleFavorite } from "../data/favorites";
 import { loadEntries } from "../data/loader";
 import type { AddResult, Entry, EntryInput, LoadedEntry } from "../data/types";
-import { addEntry, deleteEntry, editEntry, listApps, moveEntry, resolveTargetFile } from "../data/writer";
+import {
+  addEntry,
+  deleteEntry,
+  editEntry,
+  listApps,
+  moveEntry,
+  resolveTargetFile,
+} from "../data/writer";
 import { search } from "../search";
 import { AddEntryForm } from "./AddEntryForm";
 import { type Filter, FilterPicker } from "./FilterPicker";

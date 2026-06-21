@@ -311,7 +311,12 @@ describe("App", () => {
     await tick();
     const { entries: after, errors } = loadEntries(dir);
     expect(errors).toEqual([]);
-    expect(after.filter((e) => e.app === "Git").map((e) => e.action).sort()).toEqual(["Pull", "Status"]);
+    expect(
+      after
+        .filter((e) => e.app === "Git")
+        .map((e) => e.action)
+        .sort(),
+    ).toEqual(["Pull", "Status"]);
     expect(after.some((e) => e.app === "Fork")).toBe(false); // source emptied -> unlinked
   });
 });
