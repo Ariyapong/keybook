@@ -2,7 +2,14 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadEntries } from "../src/data/loader";
-import { addEntry, deleteEntry, editEntry, listApps, resolveTargetFile } from "../src/data/writer";
+import {
+  addEntry,
+  deleteEntry,
+  editEntry,
+  listApps,
+  moveEntry,
+  resolveTargetFile,
+} from "../src/data/writer";
 import { tmpDataDir } from "./_helpers";
 
 const FORK = `app: Fork
@@ -216,5 +223,74 @@ entries:
     );
     expect(res.ok).toBe(false);
     expect(res.lines.join(" ")).toMatch(/must not have an app field/);
+  });
+});
+
+describe("moveEntry", () => {
+  const FORK_PAIR = `app: Fork
+entries:
+  - action: Pull
+    keys: "⇧⌘L"
+  - action: Push
+    keys: "⇧⌘P"
+`;
+  const GIT = 'app: Git\nentries:\n  - action: Status\n    keys: "g s"\n';
+
+  it("moves an entry to an existing app and removes it from the source", () => {
+    const dir = tmpDataDir({ "fork.yaml": FORK_PAIR, "git.yaml": GIT });
+    const res = moveEntry(dir, "fork.yaml", 0, "Pull", "Git", { action: "Pull", keys: "⇧⌘L" });
+    expect(res.ok).toBe(true);
+    const { entries, errors } = loadEntries(dir);
+    expect(errors).toEqual([]);
+    const byApp = (a: string) => entries.filter((e) => e.app === a).map((e) => e.action);
+    expect(byApp("Git")).toEqual(["Status", "Pull"]); // appended to target
+    expect(byApp("Fork")).toEqual(["Push"]); // removed from source
+  });
+
+  it("moves to a brand-new app, creating the file and unlinking an emptied source", () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const res = moveEntry(dir, "fork.yaml", 0, "Pull", "Slack", { action: "Pull", keys: "⇧⌘L" });
+    expect(res.ok).toBe(true);
+    expect(res.created).toBe(true);
+    expect(existsSync(join(dir, "slack.yaml"))).toBe(true);
+    expect(existsSync(join(dir, "fork.yaml"))).toBe(false); // source emptied -> unlinked
+    expect(loadEntries(dir).errors).toEqual([]);
+  });
+
+  it("aborts with the source untouched when the target add is invalid", () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+      "git.yaml": GIT,
+    });
+    const before = readFileSync(join(dir, "fork.yaml"), "utf8");
+    const res = moveEntry(dir, "fork.yaml", 0, "Pull", "Git", { action: "Pull" }); // no body -> reject
+    expect(res.ok).toBe(false);
+    expect(readFileSync(join(dir, "fork.yaml"), "utf8")).toBe(before);
+  });
+
+  it("keeps both copies and warns when the source delete drifts", () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+      "git.yaml": GIT,
+    });
+    const res = moveEntry(dir, "fork.yaml", 0, "WRONG", "Git", { action: "Pull", keys: "⇧⌘L" });
+    expect(res.ok).toBe(true);
+    expect(res.lines.join(" ")).toMatch(/still in/);
+    expect(loadEntries(dir).entries.filter((e) => e.action === "Pull").length).toBe(2);
+  });
+
+  it("delegates to an in-place edit when the target resolves to the source file", () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+    });
+    const res = moveEntry(dir, "fork.yaml", 0, "Pull", "fork", {
+      action: "Pull (rebase)",
+      keys: "⇧⌘L",
+    });
+    expect(res.ok).toBe(true);
+    const { entries } = loadEntries(dir);
+    expect(entries.map((e) => e.action)).toEqual(["Pull (rebase)"]); // edited in place, not duplicated
   });
 });

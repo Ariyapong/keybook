@@ -283,6 +283,42 @@ describe("App", () => {
     expect(lastFrame()).not.toContain("Edit entry");
     expect(lastFrame()).not.toContain("Delete '");
   });
+
+  it("moves the selected entry to another app via the edit form", async () => {
+    const dir = tmpDataDir({
+      "fork.yaml": 'app: Fork\nentries:\n  - action: Pull\n    keys: "⇧⌘L"\n',
+      "git.yaml": 'app: Git\nentries:\n  - action: Status\n    keys: "g s"\n',
+    });
+    const { entries } = loadEntries(dir);
+    const { lastFrame, stdin } = render(<App entries={entries} dataDir={dir} />);
+    await tick();
+    // Browse order (app then action): Fork:Pull < Git:Status, so index 0 = Fork:Pull.
+    stdin.write("\x05"); // ⌃E -> edit form (focus on Type)
+    await tick();
+    expect(lastFrame()).toContain("Edit entry");
+    stdin.write("\x10"); // ⌃P: Type(1) -> App(0)  [validates the floor=0 change]
+    await tick();
+    stdin.write("\x1b[B"); // ↓: Fork -> Git
+    await tick();
+    stdin.write("\r"); // App ⏎ -> Type
+    await tick();
+    stdin.write("\r"); // Type ⏎ -> Action
+    await tick();
+    stdin.write("\r"); // Action ⏎ -> review
+    await tick();
+    expect(lastFrame()).toContain("git.yaml"); // review shows the move destination
+    stdin.write("\r"); // confirm -> moveEntry + reload
+    await tick();
+    const { entries: after, errors } = loadEntries(dir);
+    expect(errors).toEqual([]);
+    expect(
+      after
+        .filter((e) => e.app === "Git")
+        .map((e) => e.action)
+        .sort(),
+    ).toEqual(["Pull", "Status"]);
+    expect(after.some((e) => e.app === "Fork")).toBe(false); // source emptied -> unlinked
+  });
 });
 
 const tickA = () => new Promise((r) => setTimeout(r, 30));
